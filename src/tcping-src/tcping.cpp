@@ -473,7 +473,7 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
 
 				//if (WSAGetLastError() != 0) {
 				if (errorcode_stash != 0) {
-					out.p( WSAGetLastErrorMessage("",errorcode_stash));
+					out.p( WSAGetLastErrorMessage("",errorcode_stash).c_str());
 					
 				} else {
 					out.p( "No response" );

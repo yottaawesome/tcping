@@ -36,6 +36,7 @@ This application includes public domain code from the Winsock Programmer's FAQ:
 #include <iostream>
 #include <algorithm>
 #include <strstream>
+#include <string>
 
 using namespace std;
 
@@ -136,32 +137,27 @@ const int kNumMessages = sizeof(gaErrorList) / sizeof(ErrorEntry);
 // must copy the data from this function before you call it again.  It
 // follows that this function is also not thread-safe.
 
-const char* WSAGetLastErrorMessage(const char* pcMessagePrefix,
-                                   int nErrorID /* = 0 */) {
-    // Build basic error string
-    static char acErrorBuffer[256];
-    ostrstream outs(acErrorBuffer, sizeof(acErrorBuffer));
-    outs << pcMessagePrefix;
-
-    // Tack appropriate canned message onto end of supplied message
-    // prefix. Note that we do a binary search here: gaErrorList must be
-    // sorted by the error constant's value.
-    ErrorEntry* pEnd = gaErrorList + kNumMessages;
-    ErrorEntry Target(nErrorID ? nErrorID : WSAGetLastError());
-    ErrorEntry* it = lower_bound(gaErrorList, pEnd, Target);
-    if ((it != pEnd) && (it->nID == Target.nID)) {
-        outs << it->pcMessage;
-    } else {
-        // Didn't find error in list, so make up a generic one
-        outs << "unknown error";
-    }
-    outs << " (" << Target.nID << ")";
-
-
-    // Finish error message off and return it.
-    outs << ends;
-    acErrorBuffer[sizeof(acErrorBuffer) - 1] = '\0';
-    return acErrorBuffer;
+std::string WSAGetLastErrorMessage(
+    const std::string& pcMessagePrefix, 
+    const int nErrorId
+)
+{
+    void* buffer = nullptr;
+    HMODULE ws2 = GetModuleHandleA("ws2_32.dll");
+    FormatMessageA(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        ws2,
+        nErrorId,
+        0,
+        reinterpret_cast<LPSTR>(buffer),
+        0,
+        nullptr
+    );
+    if (!buffer)
+        return "Failed to format message";
+    std::string errorMessage(static_cast<char*>(buffer));
+    LocalFree(buffer);
+    return pcMessagePrefix + errorMessage;
 }
 
 
