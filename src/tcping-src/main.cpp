@@ -44,70 +44,65 @@ const char* TCPING_DATE = "Dec 30 2017";
 #include "tee.h"
 #include "tcping.h"
 
-
-using namespace std;
-
-void usage(int argc, char* argv[]) {
-    cout << "--------------------------------------------------------------" << endl;
-    cout << "tcping.exe by Eli Fulkerson " << endl;
-    cout << "Please see http://www.elifulkerson.com/projects/ for updates. " << endl;
-    cout << "--------------------------------------------------------------" << endl;
-    cout << endl;
-    cout << "Usage: " << argv[0] << " [-flags] server-address [server-port]" << endl << endl;
-    cout << "Usage (full): " << argv[0] << " [-t] [-d] [-i interval] [-n times] [-w ms] [-b n] [-r times] [-s] [-v] [-j] [-js size] [-4] [-6] [-c] [-g count] [-S source_address] [--file] [--tee filename] [-h] [-u] [--post] [--head] [--proxy-port port] [--proxy-server server] [--proxy-credentials username:password] [-f] server-address " << "[server-port]" << endl << endl;
-    cout << " -t     : ping continuously until stopped via control-c" << endl;
-    cout << " -n 5   : for instance, send 5 pings" << endl;
-    cout << " -i 5   : for instance, ping every 5 seconds" << endl;
-    cout << " -w 0.5 : for instance, wait 0.5 seconds for a response" << endl;
-    cout << " -d     : include date and time on each line" << endl;
-    cout << " -b 1   : enable beeps (1 for on-down, 2 for on-up," << endl;
-    cout << "                        3 for on-change, 4 for always)" << endl;
-    cout << " -r 5   : for instance, relookup the hostname every 5 pings" << endl;
-    cout << " -s     : automatically exit on a successful ping"<<endl;                  //[Modification 14 Apr 2011 by Michael Bray, mbray@presidio.com]
-    cout << " -v     : print version and exit" << endl;
-    cout << " -j     : include jitter, using default rolling average"<< endl;
-	cout << " -js 5  : include jitter, with a rolling average size of (for instance) 5." << endl;
-	cout << " --tee  : mirror output to a filename specified after '--tee'" << endl;
-	cout << " --append : Append to the --tee filename rather than overwriting it" << endl;
-	cout << " -4     : prefer ipv4" << endl;
-	cout << " -6     : prefer ipv6" << endl;
-	cout << " -c     : only show an output line on changed state" << endl;
-	cout << " --file : treat the \"server-address\" as a filename instead, loop through file line by line" << endl;
-	cout << "          Note: --file is incompatible with options such as -j and -c as it is looping through different targets" << endl;
-	cout << "          Optionally accepts server-port.  For example, \"example.org 443\" is valid." << endl;
-	cout << "          Alternately, use -p to force a port at command line for everything in the file." << endl;
-	cout << " -g 5   : for instance, give up if we fail 5 times in a row" << endl;
-	cout << " -S _X_ : Specify source address _X_.  Source must be a valid IP for the client computer." << endl;
-	cout << " -p _X_ : Alternate method to specify port" << endl;
-	cout << " --fqdn : Print domain name on each line if available" << endl;
-	cout << " --ansi : Use ANSI color sequences (cygwin)" << endl;
-	cout << " --color: Use Windows color sequences" << endl;
+void usage(int argc, char* argv[]) 
+{
+	std::cout << "--------------------------------------------------------------" << std::endl;
+	std::cout << "tcping.exe by Eli Fulkerson " << std::endl;
+	std::cout << "Please see http://www.elifulkerson.com/projects/ for updates. " << std::endl;
+	std::cout << "--------------------------------------------------------------" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Usage: " << argv[0] << " [-flags] server-address [server-port]" << std::endl << std::endl;
+	std::cout << "Usage (full): " << argv[0] << " [-t] [-d] [-i interval] [-n times] [-w ms] [-b n] [-r times] [-s] [-v] [-j] [-js size] [-4] [-6] [-c] [-g count] [-S source_address] [--file] [--tee filename] [-h] [-u] [--post] [--head] [--proxy-port port] [--proxy-server server] [--proxy-credentials username:password] [-f] server-address " << "[server-port]" << std::endl << std::endl;
+	std::cout << " -t     : ping continuously until stopped via control-c" << std::endl;
+	std::cout << " -n 5   : for instance, send 5 pings" << std::endl;
+	std::cout << " -i 5   : for instance, ping every 5 seconds" << std::endl;
+	std::cout << " -w 0.5 : for instance, wait 0.5 seconds for a response" << std::endl;
+	std::cout << " -d     : include date and time on each line" << std::endl;
+	std::cout << " -b 1   : enable beeps (1 for on-down, 2 for on-up," << std::endl;
+	std::cout << "                        3 for on-change, 4 for always)" << std::endl;
+	std::cout << " -r 5   : for instance, relookup the hostname every 5 pings" << std::endl;
+	std::cout << " -s     : automatically exit on a successful ping"<< std::endl;                  //[Modification 14 Apr 2011 by Michael Bray, mbray@presidio.com]
+	std::cout << " -v     : print version and exit" << std::endl;
+	std::cout << " -j     : include jitter, using default rolling average"<< std::endl;
+	std::cout << " -js 5  : include jitter, with a rolling average size of (for instance) 5." << std::endl;
+	std::cout << " --tee  : mirror output to a filename specified after '--tee'" << std::endl;
+	std::cout << " --append : Append to the --tee filename rather than overwriting it" << std::endl;
+	std::cout << " -4     : prefer ipv4" << std::endl;
+	std::cout << " -6     : prefer ipv6" << std::endl;
+	std::cout << " -c     : only show an output line on changed state" << std::endl;
+	std::cout << " --file : treat the \"server-address\" as a filename instead, loop through file line by line" << std::endl;
+	std::cout << "          Note: --file is incompatible with options such as -j and -c as it is looping through different targets" << std::endl;
+	std::cout << "          Optionally accepts server-port.  For example, \"example.org 443\" is valid." << std::endl;
+	std::cout << "          Alternately, use -p to force a port at command line for everything in the file." << std::endl;
+	std::cout << " -g 5   : for instance, give up if we fail 5 times in a row" << std::endl;
+	std::cout << " -S _X_ : Specify source address _X_.  Source must be a valid IP for the client computer." << std::endl;
+	std::cout << " -p _X_ : Alternate method to specify port" << std::endl;
+	std::cout << " --fqdn : Print domain name on each line if available" << std::endl;
+	std::cout << " --ansi : Use ANSI color sequences (cygwin)" << std::endl;
+	std::cout << " --color: Use Windows color sequences" << std::endl;
 	
-    cout << endl << "HTTP Options:" << endl;
-    cout << " -h     : HTTP mode (use url without http:// for server-address)" << endl;
-    cout << " -u     : include target URL on each line" << endl;
-    cout << " --post : use POST rather than GET (may avoid caching)" << endl;
-    cout << " --head : use HEAD rather than GET" << endl;
-	cout << " --proxy-server : specify a proxy server " << endl;
-	cout << " --proxy-port   : specify a proxy port " << endl;
-	cout << " --proxy-credentials : specify 'Proxy-Authorization: Basic' header in format username:password" << endl;
-    cout << endl << "Debug Options:" << endl;
-    cout << " -f     : force tcping to send at least one byte" << endl;
-	cout << " --header : include a header with original args and date.  Implied if using --tee." << endl;
-	cout << " --block  : use a 'blocking' socket to connect.  This prevents -w from working and uses the" << endl;
-	cout << "            default timeout (as long as 20 seconds in my case).  However it can detect an actively" << endl;
-	cout << "            refused connection vs a timeout." << endl;
-    cout << endl << "\tIf you don't pass server-port, it defaults to " << kDefaultServerPort << "." << endl;
-
+	std::cout << std::endl << "HTTP Options:" << std::endl;
+	std::cout << " -h     : HTTP mode (use url without http:// for server-address)" << std::endl;
+	std::cout << " -u     : include target URL on each line" << std::endl;
+	std::cout << " --post : use POST rather than GET (may avoid caching)" << std::endl;
+	std::cout << " --head : use HEAD rather than GET" << std::endl;
+	std::cout << " --proxy-server : specify a proxy server " << std::endl;
+	std::cout << " --proxy-port   : specify a proxy port " << std::endl;
+	std::cout << " --proxy-credentials : specify 'Proxy-Authorization: Basic' header in format username:password" << std::endl;
+	std::cout << std::endl << "Debug Options:" << std::endl;
+	std::cout << " -f     : force tcping to send at least one byte" << std::endl;
+	std::cout << " --header : include a header with original args and date.  Implied if using --tee." << std::endl;
+	std::cout << " --block  : use a 'blocking' socket to connect.  This prevents -w from working and uses the" << std::endl;
+	std::cout << "            default timeout (as long as 20 seconds in my case).  However it can detect an actively" << std::endl;
+	std::cout << "            refused connection vs a timeout." << std::endl;
+	std::cout << std::endl << "\tIf you don't pass server-port, it defaults to " << kDefaultServerPort << "." << std::endl;
 }
 
-
-int main(int argc, char* argv[]) {
-
-	
-
+int main(int argc, char* argv[]) 
+{
     // Do we have enough command line arguments?
-    if (argc < 2) {
+    if (argc < 2) 
+	{
         usage(argc, argv);
         return 1;
     }
@@ -166,207 +161,244 @@ int main(int argc, char* argv[]) {
 	int use_color = 0;
 
 	int use_source_address = 0;
-	char* src_address = (char*)"";
+	std::string src_address = "";
 
 	int nPort = kDefaultServerPort;
 
 	int always_print_domain = 0;
 
-	for (int x = 0; x < argc; x++) {
-
-		if (!strcmp(argv[x], "/?") || !strcmp(argv[x], "?") || !strcmp(argv[x], "--help") || !strcmp(argv[x], "-help")) {
+	for (int x = 0; x < argc; x++) 
+	{
+		if (!strcmp(argv[x], "/?") || !strcmp(argv[x], "?") || !strcmp(argv[x], "--help") || !strcmp(argv[x], "-help")) 
+		{
 			usage(argc, argv);
 			return 1;
 		}
 
-		if (!strcmp(argv[x], "--proxy-port")) {
+		if (!strcmp(argv[x], "--proxy-port")) 
+		{
 			proxy_port = atoi(argv[x + 1]);
 			offset = x + 1;
 		}
 
-		if (!strcmp(argv[x], "--proxy-server")) {
+		if (!strcmp(argv[x], "--proxy-server")) 
+		{
 			sprintf_s(proxy_server, sizeof(proxy_server), argv[x + 1]);
 			offset = x + 1;
 		}
 
-		if (!strcmp(argv[x], "--proxy-credentials")) {
+		if (!strcmp(argv[x], "--proxy-credentials")) 
+		{
 			sprintf_s(proxy_credentials, sizeof(proxy_credentials), argv[x + 1]);
 			using_credentials = 1;
 			offset = x + 1;
 		}
 
 		// force IPv4
-		if (!strcmp(argv[x], "-4")) {
+		if (!strcmp(argv[x], "-4")) 
+		{
 			ipv = 4;
 			offset = x;
 		}
 
 		// force IPv6
-		if (!strcmp(argv[x], "-6")) {
+		if (!strcmp(argv[x], "-6")) 
+		{
 			ipv = 6;
 			offset = x;
 		}
 
 		// ping continuously
-		if (!strcmp(argv[x], "-t")) {
+		if (!strcmp(argv[x], "-t")) 
+		{
 			times_to_ping = -1;
 			file_loop_count_was_specific = true;
 			offset = x;
-			cout << endl << "** Pinging continuously.  Press control-c to stop **" << endl;
+			std::cout << std::endl << "** Pinging continuously.  Press control-c to stop **" << std::endl;
 		}
 
 		// Number of times to ping
-		if (!strcmp(argv[x], "-n")) {
+		if (!strcmp(argv[x], "-n")) 
+		{
 			times_to_ping = atoi(argv[x + 1]);
 			file_loop_count_was_specific = true;
 			offset = x + 1;
 		}
 
 		// Give up
-		if (!strcmp(argv[x], "-g")) {
+		if (!strcmp(argv[x], "-g")) 
+		{
 			giveup_count = atoi(argv[x + 1]);
 			offset = x + 1;
 		}
 
 		// exit on first successful ping
-		if (!strcmp(argv[x], "-s")) {
+		if (!strcmp(argv[x], "-s")) 
+		{
 			auto_exit_on_success = 1;
 			offset = x;
 		}
 
-		if (!strcmp(argv[x], "--header")) {
+		if (!strcmp(argv[x], "--header")) 
+		{
 			show_arg_header = 1;
 			offset = x;
 		}
 
-		if (!strcmp(argv[x], "--block")) {
+		if (!strcmp(argv[x], "--block")) 
+		{
 			blocking = true;
 			offset = x;
 		}
 
-		if (!strcmp(argv[x], "-p")) {
+		if (!strcmp(argv[x], "-p")) 
+		{
 			nPort = atoi(argv[x + 1]);
 			offset = x + 1;
 		}
 
-		if (!strcmp(argv[x], "--ansi")) {
+		if (!strcmp(argv[x], "--ansi")) 
+		{
 			use_color = 1;
 			offset = x;
 		}
 
-		if (!strcmp(argv[x], "--color")) {
+		if (!strcmp(argv[x], "--color")) 
+		{
 			use_color = 2;
 			offset = x;
 		}
 
-		if (!strcmp(argv[x], "--fqdn")) {
+		if (!strcmp(argv[x], "--fqdn")) 
+		{
 			always_print_domain = 1;
 			offset = x;
 		}
 
 		// tee to a log file
-		if (!strcmp(argv[x], "--tee")) {
+		if (!strcmp(argv[x], "--tee")) 
+		{
 			strcpy_s(logfile, sizeof(logfile), static_cast<const char*>(argv[x + 1]));
 			offset = x + 1;
 			use_logfile = 1;
 			show_arg_header = 1;
 		}
 
-		if (!strcmp(argv[x], "--append")) {
+		if (!strcmp(argv[x], "--append")) 
+		{
 			tee_mode_append = true;
 			offset = x;
 		}
 
 		// read from a text file
-		if (!strcmp(argv[x], "--file")) {
+		if (!strcmp(argv[x], "--file")) 
+		{
 			offset = x;
 			no_statistics = 1;
 			reading_from_file = 1;
 		}
 
         // http mode
-        if (!strcmp(argv[x], "-h")) {
+        if (!strcmp(argv[x], "-h")) 
+		{
             use_http = 1;
             offset = x;
         }
 
         // http mode - use get
-        if (!strcmp(argv[x], "--get")) {
+        if (!strcmp(argv[x], "--get")) 
+		{
             use_http = 1; //implied
             http_cmd = HTTP_GET;
             offset = x;
         }
 
         // http mode - use head
-        if (!strcmp(argv[x], "--head")) {
+        if (!strcmp(argv[x], "--head")) 
+		{
             use_http = 1; //implied
             http_cmd = HTTP_HEAD;
             offset = x;
         }
 
         // http mode - use post
-        if (!strcmp(argv[x], "--post")) {
+        if (!strcmp(argv[x], "--post")) 
+		{
             use_http = 1; //implied
             http_cmd = HTTP_POST;
             offset = x;
         }
 
         // include url per line
-        if (!strcmp(argv[x], "-u")) {
+        if (!strcmp(argv[x], "-u")) 
+		{
             include_url = 1;
             offset = x;
         }
 
         // force send a byte
-        if (!strcmp(argv[x], "-f")) {
+        if (!strcmp(argv[x], "-f")) 
+		{
             force_send_byte = 1;
             offset = x;
         }
 
         // interval between pings
-        if (!strcmp(argv[x], "-i")) {
+        if (!strcmp(argv[x], "-i")) 
+		{
             ping_interval = atof(argv[x+1]);
             offset = x+1;
         }
 
         // wait for response
-        if (!strcmp(argv[x], "-w")) {
+        if (!strcmp(argv[x], "-w")) 
+		{
 			ping_timeout = (int)(1000 * atof(argv[x + 1]));
             offset = x+1;
         }
 
 		// source address
-		if (!strcmp(argv[x], "-S")) {
+		if (!strcmp(argv[x], "-S")) 
+		{
 			src_address = argv[x + 1];
 			use_source_address = 1;
 			offset = x + 1;
 		}
 
         // optional datetimestamp output
-        if (!strcmp(argv[x], "-d")) {
+        if (!strcmp(argv[x], "-d")) 
+		{
             include_timestamp = 1;
             offset = x;
         }
 
         // optional jitter output
-        if (!strcmp(argv[x], "-j")) {
+        if (!strcmp(argv[x], "-j")) 
+		{
             include_jitter = 1;
             offset = x;
 		}
      
 		// optional jitter output (sample size)
-		if (!strcmp(argv[x], "-js")) {
+		if (!strcmp(argv[x], "-js")) 
+		{
             include_jitter = 1;
             offset = x;
 
             // obnoxious special casing if they actually specify the default 0
-            if (!strcmp(argv[x+1], "0")) {
+            if (!strcmp(argv[x+1], "0")) 
+			{
                 jitter_sample_size = 0;
                 offset = x+1;
-            } else {
-                if (atoi(argv[x+1]) == 0) {
+            } 
+			else 
+			{
+                if (atoi(argv[x+1]) == 0) 
+				{
                     offset = x;
-                } else {
+                } 
+				else 
+				{
                     jitter_sample_size = atoi(argv[x+1]);
                     offset = x+1;
                 }
@@ -375,77 +407,85 @@ int main(int argc, char* argv[]) {
         }
 
         // optional hostname re-lookup
-        if (!strcmp(argv[x], "-r")) {
+        if (!strcmp(argv[x], "-r")) 
+		{
             relookup_interval = atoi(argv[x+1]);
             offset = x+1;
         }
 		
 		 // optional output minimization
-        if (!strcmp(argv[x], "-c")) {
+        if (!strcmp(argv[x], "-c")) 
+		{
             only_changes = 1;
             offset = x;
-			cout << endl << "** Only displaying output for state changes. **" << endl;
+			std::cout << std::endl << "** Only displaying output for state changes. **" << std::endl;
         }
 
         // optional beepage
-        if (!strcmp (argv[x], "-b")) {
+        if (!strcmp (argv[x], "-b")) 
+		{
             beep_mode = atoi(argv[x+1]);
             offset = x+1;
-            switch (beep_mode) {
+            switch (beep_mode) 
+			{
             case 0:
                 break;
             case 1:
-                cout << endl << "** Beeping on \"down\" - (two beeps) **" << endl;
+				std::cout << std::endl << "** Beeping on \"down\" - (two beeps) **" << std::endl;
                 break;
             case 2:
-                cout << endl << "** Beeping on \"up\"  - (one beep) **" << endl;
+				std::cout << std::endl << "** Beeping on \"up\"  - (one beep) **" << std::endl;
                 break;
             case 3:
-                cout << endl << "** Beeping on \"change\" - (one beep up, two beeps down) **" << endl;
+				std::cout << std::endl << "** Beeping on \"change\" - (one beep up, two beeps down) **" << std::endl;
                 break;
             case 4:
-                cout << endl << "** Beeping constantly - (one beep up, two beeps down) **" << endl;
+				std::cout << std::endl << "** Beeping constantly - (one beep up, two beeps down) **" << std::endl;
                 break;
             }
 
         }
 
         // dump version and quit
-        if (!strcmp(argv[x], "-v") || !strcmp(argv[x], "--version") ) {
+        if (!strcmp(argv[x], "-v") || !strcmp(argv[x], "--version")) 
+		{
             //cout << "tcping.exe 0.30 Nov 13 2015" << endl;
-			cout << "tcping.exe " << TCPING_VERSION << " " << TCPING_DATE << endl;
-            cout << "compiled: " << __DATE__ << " " << __TIME__ <<  endl;
-            cout << endl;
-            cout << "tcping.exe by Eli Fulkerson " << endl;
-            cout << "Please see http://www.elifulkerson.com/projects/ for updates. " << endl;
-            cout << endl;
-            cout << "-s option contributed 14 Apr 2011 by Michael Bray, mbray@presidio.com" << endl;
-			cout << "includes base64.cpp Copyright (C) 2004-2008 René Nyffenegger" << endl;
+			std::cout << "tcping.exe " << TCPING_VERSION << " " << TCPING_DATE << std::endl;
+			std::cout << "compiled: " << __DATE__ << " " << __TIME__ << std::endl;
+			std::cout << std::endl;
+			std::cout << "tcping.exe by Eli Fulkerson " << std::endl;
+			std::cout << "Please see http://www.elifulkerson.com/projects/ for updates. " << std::endl;
+			std::cout << std::endl;
+			std::cout << "-s option contributed 14 Apr 2011 by Michael Bray, mbray@presidio.com" << std::endl;
+			std::cout << "includes base64.cpp Copyright (C) 2004-2008 René Nyffenegger" << std::endl;
             return 1;
         }
 	}
 
 	// open our logfile, if applicable
 	tee out;
-	if (use_logfile == 1 && logfile != NULL) {
-		if (tee_mode_append == true) {
+	if (use_logfile == 1 && logfile != NULL) 
+	{
+		if (tee_mode_append == true) 
+		{
 			out.OpenAppend(logfile);
-		} else {
+		} 
+		else 
+		{
 			out.Open(logfile);
 		}
 	}
 
-
-
-	if (show_arg_header == 1) {
+	if (show_arg_header == 1) 
+	{
 		out.p("-----------------------------------------------------------------\n");
 		// print out the args
 		out.p("args: ");
-		for (int x = 0; x < argc; x++) {
+		for (int x = 0; x < argc; x++) 
+		{
 			out.pf("%s ", argv[x]);
 		}
 		out.p("\n");
-
 
 		// and the date
 
@@ -467,62 +507,68 @@ int main(int argc, char* argv[]) {
 		// and the attrib
 		out.pf("tcping.exe v%s: http://www.elifulkerson.com/projects/tcping.php\n", TCPING_VERSION);
 		out.p("-----------------------------------------------------------------\n");
-
 	}
-
-
-
-
 
 	// Get host and (optionally) port from the command line
 
-	char* pcHost = (char*)"";
+	std::string pcHost = "";
 	//char pcHost[2048] = "";
 	
-    if (argc >= 2 + offset) {
-		if (!reading_from_file) {
+    if (argc >= 2 + offset) 
+	{
+		if (!reading_from_file) 
+		{
 			pcHost = argv[1 + offset];
 		}
-		else {
+		else 
+		{
 			strcpy_s(urlfile, sizeof(urlfile), static_cast<const char*>(argv[offset + 1]));
 		}
-
-
-    } else {
-			cout << "Check the last flag before server-address.  Did you specify a flag and forget its argument?" << endl;
-			return 1;
+    } 
+	else 
+	{
+		std::cout << "Check the last flag before server-address.  Did you specify a flag and forget its argument?" << std::endl;
+		return 1;
     }
 
-    
 	// allow the -p option to win if we set it
-    if (argc >= 3 + offset && nPort == kDefaultServerPort) {
+    if (argc >= 3 + offset && nPort == kDefaultServerPort) 
+	{
         nPort = atoi(argv[2 + offset]);
     }
 
     // Do a little sanity checking because we're anal.
     int nNumArgsIgnored = (argc - 3 - offset);
-    if (nNumArgsIgnored > 0) {
-        cout << nNumArgsIgnored << " extra argument" << (nNumArgsIgnored == 1 ? "" : "s") << " ignored.  FYI." << endl;
+    if (nNumArgsIgnored > 0) 
+	{
+		std::cout << nNumArgsIgnored << " extra argument" << (nNumArgsIgnored == 1 ? "" : "s") << " ignored.  FYI." << std::endl;
     }
 
-    if (use_http == 1 && reading_from_file == 0) {   //added reading from file because if we are doing multiple http this message is just spam.
-        serverptr = strchr(pcHost, ':');
-        if (serverptr != NULL) {
+    if (use_http == 1 && reading_from_file == 0) 
+	{   //added reading from file because if we are doing multiple http this message is just spam.
+        serverptr = strchr(pcHost.data(), ':');
+        if (serverptr != NULL) 
+		{
             ++serverptr;
             ++serverptr;
             ++serverptr;
-        } else {
-            serverptr = pcHost;
+        } 
+		else 
+		{
+            serverptr = pcHost.data();
         }
 
         docptr = strchr(serverptr, '/');
-        if (docptr != NULL) {
+        if (docptr != NULL) 
+		{
             *docptr = '\0';
             ++docptr;
 
 			strcpy_s(server, sizeof(server), static_cast<const char*>(serverptr));
 			strcpy_s(document, sizeof(document), static_cast<const char*>(docptr));
-        } else {
+        } 
+		else 
+		{
 			strcpy_s(server, sizeof(server), static_cast<const char*>(serverptr));
             document[0] = '\0';
         }
@@ -536,8 +582,9 @@ int main(int argc, char* argv[]) {
     // Start Winsock up
     WSAData wsaData;
     int nCode;
-    if ((nCode = WSAStartup(MAKEWORD(1, 1), &wsaData)) != 0) {
-        cout << "WSAStartup() returned error code " << nCode << "." << endl;
+    if ((nCode = WSAStartup(MAKEWORD(1, 1), &wsaData)) != 0) 
+	{
+		std::cout << "WSAStartup() returned error code " << nCode << "." << std::endl;
         return 255;
     }
 
@@ -546,15 +593,18 @@ int main(int argc, char* argv[]) {
 
 	out.p("\n");
 
-	if (!reading_from_file) {
-		retval = DoWinsock_Single(pcHost, nPort, times_to_ping, ping_interval, include_timestamp, beep_mode, ping_timeout, relookup_interval, auto_exit_on_success, force_send_byte, include_url, use_http, docptr, http_cmd, include_jitter, jitter_sample_size, logfile, use_logfile, ipv, proxy_server, proxy_port, using_credentials, proxy_credentials, only_changes, no_statistics, giveup_count, out, use_source_address, src_address, blocking, always_print_domain, use_color);
+	if (!reading_from_file) 
+	{
+		retval = DoWinsock_Single(pcHost.data(), nPort, times_to_ping, ping_interval, include_timestamp, beep_mode, ping_timeout, relookup_interval, auto_exit_on_success, force_send_byte, include_url, use_http, docptr, http_cmd, include_jitter, jitter_sample_size, logfile, use_logfile, ipv, proxy_server, proxy_port, using_credentials, proxy_credentials, only_changes, no_statistics, giveup_count, out, use_source_address, src_address.data(), blocking, always_print_domain, use_color);
 	}
-	else {
-		if (file_loop_count_was_specific) {
+	else 
+	{
+		if (file_loop_count_was_specific) 
+		{
 			file_times_to_loop = times_to_ping;
 		}
 		times_to_ping = 1;
-		retval = DoWinsock_Multi(pcHost, nPort, times_to_ping, ping_interval, include_timestamp, beep_mode, ping_timeout, relookup_interval, auto_exit_on_success, force_send_byte, include_url, use_http, docptr, http_cmd, include_jitter, jitter_sample_size, logfile, use_logfile, ipv, proxy_server, proxy_port, using_credentials, proxy_credentials, only_changes, no_statistics, giveup_count, file_times_to_loop, urlfile, out, use_source_address, src_address, blocking, always_print_domain, use_color);
+		retval = DoWinsock_Multi(pcHost.data(), nPort, times_to_ping, ping_interval, include_timestamp, beep_mode, ping_timeout, relookup_interval, auto_exit_on_success, force_send_byte, include_url, use_http, docptr, http_cmd, include_jitter, jitter_sample_size, logfile, use_logfile, ipv, proxy_server, proxy_port, using_credentials, proxy_credentials, only_changes, no_statistics, giveup_count, file_times_to_loop, urlfile, out, use_source_address, src_address.data(), blocking, always_print_domain, use_color);
 	}
 
     // Shut Winsock back down and take off.
