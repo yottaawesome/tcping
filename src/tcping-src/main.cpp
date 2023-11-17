@@ -31,8 +31,8 @@ This application includes public domain code from the Winsock Programmer's FAQ:
 
 ***********************************************************************/
 
-const char *TCPING_VERSION = "0.39";
-const char *TCPING_DATE = "Dec 30 2017";
+const char* TCPING_VERSION = "0.39";
+const char* TCPING_DATE = "Dec 30 2017";
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -133,8 +133,8 @@ int main(int argc, char* argv[]) {
     int only_changes = 0;
 
     // for http mode
-    char *serverptr;
-    char *docptr = NULL;
+    char* serverptr;
+    char* docptr = NULL;
     char server[2048];
     char document[2048];
 
@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
 	int use_color = 0;
 
 	int use_source_address = 0;
-	char* src_address = "";
+	char* src_address = (char*)"";
 
 	int nPort = kDefaultServerPort;
 
@@ -476,7 +476,7 @@ int main(int argc, char* argv[]) {
 
 	// Get host and (optionally) port from the command line
 
-	char* pcHost = "";
+	char* pcHost = (char*)"";
 	//char pcHost[2048] = "";
 	
     if (argc >= 2 + offset) {

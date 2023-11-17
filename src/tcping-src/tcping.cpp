@@ -94,7 +94,7 @@ bool SendHttp(SOCKET sd, char* server, char* document, int http_cmd, int using_p
     }
 
     if (document == NULL) {
-        document = "/";
+        document = (char*)"/";
     }
 
 	if (using_credentials == 0) {
@@ -858,7 +858,7 @@ SOCKET EstablishConnection(ADDRINFO* address, int ping_timeout, int force_send_b
 		return INVALID_SOCKET;
 	}
 	
-    char *sendy = ".";
+    char *sendy = (char*)".";
     int size = 1;
     int sendstatus = 1000;
 
