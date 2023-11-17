@@ -1,2 +1,5 @@
 # tcping
-A fork of Eli Fulkerson's tcping with improvements.
+
+## Introduction
+
+A fork of [Eli Fulkerson's tcping](https://www.elifulkerson.com/projects/tcping.php) with improvements.
