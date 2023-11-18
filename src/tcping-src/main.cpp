@@ -107,65 +107,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    int times_to_ping = 4;
-    int offset = 0;  // because I don't feel like writing a whole command line parsing thing, I just want to accept an optional -t.  // well, that got out of hand quickly didn't it? -Future Eli
-    double ping_interval = 1;
-    int include_timestamp = 0;
-    int beep_mode = 0;  // 0 is off, 1 is down, 2 is up, 3 is on change, 4 is constantly
-    int ping_timeout = 2000;
-	bool blocking = false;
-    int relookup_interval = -1;
-    int auto_exit_on_success = 0;
-    int force_send_byte = 0;
-
-    int include_url = 0;
-    int use_http = 0;
-    int http_cmd = 0;
-
-    int include_jitter = 0;
-    int jitter_sample_size = 0;
-
-    int only_changes = 0;
-
-    // for http mode
-    char* serverptr;
-    char* docptr = NULL;
-    char server[2048];
-    char document[2048];
-
-    // for --tee
-    char logfile[256];
-    int use_logfile = 0;
-	int show_arg_header = 0;
-	bool tee_mode_append = false;
-
-    // preferred IP version
-    int ipv = 0;
-
-	// http proxy server and port
-	int proxy_port = 3128;
-	char proxy_server[2048];
-	proxy_server[0] = 0;
-
-	char proxy_credentials[2048];
-	int using_credentials = 0;
-
-	// Flags for "read from filename" support
-	int no_statistics = 0;  // no_statistics flag kills the statistics finale in the cases where we are reading entries from a file
-	int reading_from_file = 0;  // setting this flag so we can mangle the other settings against it post parse.  For instance, it moves the meaning of -n and -t
-	char urlfile[256];
-	int file_times_to_loop = 1;
-	bool file_loop_count_was_specific = false;   // ugh, since we are taking over the -n and -t options, but we don't want a default of 4 but we *do* want 4 if they specified 4
-
-	int giveup_count = 0;
-	int use_color = 0;
-
-	int use_source_address = 0;
-	std::string src_address = "";
-
-	int nPort = kDefaultServerPort;
-
-	int always_print_domain = 0;
+	PingParams params{};
 
 	for (int x = 0; x < argc; x++) 
 	{
@@ -177,230 +119,230 @@ int main(int argc, char* argv[])
 
 		if (!strcmp(argv[x], "--proxy-port")) 
 		{
-			proxy_port = atoi(argv[x + 1]);
-			offset = x + 1;
+			params.proxy_port = atoi(argv[x + 1]);
+			params.offset = x + 1;
 		}
 
 		if (!strcmp(argv[x], "--proxy-server")) 
 		{
-			sprintf_s(proxy_server, sizeof(proxy_server), argv[x + 1]);
-			offset = x + 1;
+			sprintf_s(params.proxy_server, sizeof(params.proxy_server), argv[x + 1]);
+			params.offset = x + 1;
 		}
 
 		if (!strcmp(argv[x], "--proxy-credentials")) 
 		{
-			sprintf_s(proxy_credentials, sizeof(proxy_credentials), argv[x + 1]);
-			using_credentials = 1;
-			offset = x + 1;
+			sprintf_s(params.proxy_credentials, sizeof(params.proxy_credentials), argv[x + 1]);
+			params.using_credentials = 1;
+			params.offset = x + 1;
 		}
 
 		// force IPv4
 		if (!strcmp(argv[x], "-4")) 
 		{
-			ipv = 4;
-			offset = x;
+			params.ipv = 4;
+			params.offset = x;
 		}
 
 		// force IPv6
 		if (!strcmp(argv[x], "-6")) 
 		{
-			ipv = 6;
-			offset = x;
+			params.ipv = 6;
+			params.offset = x;
 		}
 
 		// ping continuously
 		if (!strcmp(argv[x], "-t")) 
 		{
-			times_to_ping = -1;
-			file_loop_count_was_specific = true;
-			offset = x;
+			params.times_to_ping = -1;
+			params.file_loop_count_was_specific = true;
+			params.offset = x;
 			std::cout << std::endl << "** Pinging continuously.  Press control-c to stop **" << std::endl;
 		}
 
 		// Number of times to ping
 		if (!strcmp(argv[x], "-n")) 
 		{
-			times_to_ping = atoi(argv[x + 1]);
-			file_loop_count_was_specific = true;
-			offset = x + 1;
+			params.times_to_ping = atoi(argv[x + 1]);
+			params.file_loop_count_was_specific = true;
+			params.offset = x + 1;
 		}
 
 		// Give up
 		if (!strcmp(argv[x], "-g")) 
 		{
-			giveup_count = atoi(argv[x + 1]);
-			offset = x + 1;
+			params.giveup_count = atoi(argv[x + 1]);
+			params.offset = x + 1;
 		}
 
 		// exit on first successful ping
 		if (!strcmp(argv[x], "-s")) 
 		{
-			auto_exit_on_success = 1;
-			offset = x;
+			params.auto_exit_on_success = 1;
+			params.offset = x;
 		}
 
 		if (!strcmp(argv[x], "--header")) 
 		{
-			show_arg_header = 1;
-			offset = x;
+			params.show_arg_header = 1;
+			params.offset = x;
 		}
 
 		if (!strcmp(argv[x], "--block")) 
 		{
-			blocking = true;
-			offset = x;
+			params.blocking = true;
+			params.offset = x;
 		}
 
 		if (!strcmp(argv[x], "-p")) 
 		{
-			nPort = atoi(argv[x + 1]);
-			offset = x + 1;
+			params.nPort = atoi(argv[x + 1]);
+			params.offset = x + 1;
 		}
 
 		if (!strcmp(argv[x], "--ansi")) 
 		{
-			use_color = 1;
-			offset = x;
+			params.use_color = 1;
+			params.offset = x;
 		}
 
 		if (!strcmp(argv[x], "--color")) 
 		{
-			use_color = 2;
-			offset = x;
+			params.use_color = 2;
+			params.offset = x;
 		}
 
 		if (!strcmp(argv[x], "--fqdn")) 
 		{
-			always_print_domain = 1;
-			offset = x;
+			params.always_print_domain = 1;
+			params.offset = x;
 		}
 
 		// tee to a log file
 		if (!strcmp(argv[x], "--tee")) 
 		{
-			strcpy_s(logfile, sizeof(logfile), static_cast<const char*>(argv[x + 1]));
-			offset = x + 1;
-			use_logfile = 1;
-			show_arg_header = 1;
+			strcpy_s(params.logfile, sizeof(params.logfile), static_cast<const char*>(argv[x + 1]));
+			params.offset = x + 1;
+			params.use_logfile = 1;
+			params.show_arg_header = 1;
 		}
 
 		if (!strcmp(argv[x], "--append")) 
 		{
-			tee_mode_append = true;
-			offset = x;
+			params.tee_mode_append = true;
+			params.offset = x;
 		}
 
 		// read from a text file
 		if (!strcmp(argv[x], "--file")) 
 		{
-			offset = x;
-			no_statistics = 1;
-			reading_from_file = 1;
+			params.offset = x;
+			params.no_statistics = 1;
+			params.reading_from_file = 1;
 		}
 
         // http mode
         if (!strcmp(argv[x], "-h")) 
 		{
-            use_http = 1;
-            offset = x;
+			params.use_http = 1;
+			params.offset = x;
         }
 
         // http mode - use get
         if (!strcmp(argv[x], "--get")) 
 		{
-            use_http = 1; //implied
-            http_cmd = HTTP_GET;
-            offset = x;
+			params.use_http = 1; //implied
+			params.http_cmd = HTTP_GET;
+			params.offset = x;
         }
 
         // http mode - use head
         if (!strcmp(argv[x], "--head")) 
 		{
-            use_http = 1; //implied
-            http_cmd = HTTP_HEAD;
-            offset = x;
+			params.use_http = 1; //implied
+			params.http_cmd = HTTP_HEAD;
+			params.offset = x;
         }
 
         // http mode - use post
         if (!strcmp(argv[x], "--post")) 
 		{
-            use_http = 1; //implied
-            http_cmd = HTTP_POST;
-            offset = x;
+			params.use_http = 1; //implied
+			params.http_cmd = HTTP_POST;
+			params.offset = x;
         }
 
         // include url per line
         if (!strcmp(argv[x], "-u")) 
 		{
-            include_url = 1;
-            offset = x;
+			params.include_url = 1;
+			params.offset = x;
         }
 
         // force send a byte
         if (!strcmp(argv[x], "-f")) 
 		{
-            force_send_byte = 1;
-            offset = x;
+			params.force_send_byte = 1;
+			params.offset = x;
         }
 
         // interval between pings
         if (!strcmp(argv[x], "-i")) 
 		{
-            ping_interval = atof(argv[x+1]);
-            offset = x+1;
+			params.ping_interval = atof(argv[x+1]);
+			params.offset = x+1;
         }
 
         // wait for response
         if (!strcmp(argv[x], "-w")) 
 		{
-			ping_timeout = (int)(1000 * atof(argv[x + 1]));
-            offset = x+1;
+			params.ping_timeout = (int)(1000 * atof(argv[x + 1]));
+			params.offset = x+1;
         }
 
 		// source address
 		if (!strcmp(argv[x], "-S")) 
 		{
-			src_address = argv[x + 1];
-			use_source_address = 1;
-			offset = x + 1;
+			params.src_address = argv[x + 1];
+			params.use_source_address = 1;
+			params.offset = x + 1;
 		}
 
         // optional datetimestamp output
         if (!strcmp(argv[x], "-d")) 
 		{
-            include_timestamp = 1;
-            offset = x;
+			params.include_timestamp = 1;
+			params.offset = x;
         }
 
         // optional jitter output
         if (!strcmp(argv[x], "-j")) 
 		{
-            include_jitter = 1;
-            offset = x;
+			params.include_jitter = 1;
+			params.offset = x;
 		}
      
 		// optional jitter output (sample size)
 		if (!strcmp(argv[x], "-js")) 
 		{
-            include_jitter = 1;
-            offset = x;
+			params.include_jitter = 1;
+			params.offset = x;
 
             // obnoxious special casing if they actually specify the default 0
             if (!strcmp(argv[x+1], "0")) 
 			{
-                jitter_sample_size = 0;
-                offset = x+1;
+				params.jitter_sample_size = 0;
+				params.offset = x+1;
             } 
 			else 
 			{
                 if (atoi(argv[x+1]) == 0) 
 				{
-                    offset = x;
+					params.offset = x;
                 } 
 				else 
 				{
-                    jitter_sample_size = atoi(argv[x+1]);
-                    offset = x+1;
+					params.jitter_sample_size = atoi(argv[x+1]);
+					params.offset = x+1;
                 }
             }
             //			cout << "offset coming out "<< offset << endl;
@@ -409,24 +351,24 @@ int main(int argc, char* argv[])
         // optional hostname re-lookup
         if (!strcmp(argv[x], "-r")) 
 		{
-            relookup_interval = atoi(argv[x+1]);
-            offset = x+1;
+			params.relookup_interval = atoi(argv[x+1]);
+			params.offset = x+1;
         }
 		
 		 // optional output minimization
         if (!strcmp(argv[x], "-c")) 
 		{
-            only_changes = 1;
-            offset = x;
+			params.only_changes = 1;
+			params.offset = x;
 			std::cout << std::endl << "** Only displaying output for state changes. **" << std::endl;
         }
 
         // optional beepage
         if (!strcmp (argv[x], "-b")) 
 		{
-            beep_mode = atoi(argv[x+1]);
-            offset = x+1;
-            switch (beep_mode) 
+			params.beep_mode = atoi(argv[x+1]);
+			params.offset = x+1;
+            switch (params.beep_mode)
 			{
             case 0:
                 break;
@@ -464,19 +406,19 @@ int main(int argc, char* argv[])
 
 	// open our logfile, if applicable
 	tee out;
-	if (use_logfile == 1 && logfile != NULL) 
+	if (params.use_logfile == 1 && params.logfile != NULL)
 	{
-		if (tee_mode_append == true) 
+		if (params.tee_mode_append == true)
 		{
-			out.OpenAppend(logfile);
+			out.OpenAppend(params.logfile);
 		} 
 		else 
 		{
-			out.Open(logfile);
+			out.Open(params.logfile);
 		}
 	}
 
-	if (show_arg_header == 1) 
+	if (params.show_arg_header == 1)
 	{
 		out.p("-----------------------------------------------------------------\n");
 		// print out the args
@@ -511,18 +453,17 @@ int main(int argc, char* argv[])
 
 	// Get host and (optionally) port from the command line
 
-	std::string pcHost = "";
 	//char pcHost[2048] = "";
 	
-    if (argc >= 2 + offset) 
+    if (argc >= 2 + params.offset)
 	{
-		if (!reading_from_file) 
+		if (!params.reading_from_file)
 		{
-			pcHost = argv[1 + offset];
+			params.pcHost = argv[1 + params.offset];
 		}
 		else 
 		{
-			strcpy_s(urlfile, sizeof(urlfile), static_cast<const char*>(argv[offset + 1]));
+			strcpy_s(params.urlfile, sizeof(params.urlfile), static_cast<const char*>(argv[params.offset + 1]));
 		}
     } 
 	else 
@@ -532,48 +473,48 @@ int main(int argc, char* argv[])
     }
 
 	// allow the -p option to win if we set it
-    if (argc >= 3 + offset && nPort == kDefaultServerPort) 
+    if (argc >= 3 + params.offset && params.nPort == kDefaultServerPort)
 	{
-        nPort = atoi(argv[2 + offset]);
+		params.nPort = atoi(argv[2 + params.offset]);
     }
 
     // Do a little sanity checking because we're anal.
-    int nNumArgsIgnored = (argc - 3 - offset);
+    int nNumArgsIgnored = (argc - 3 - params.offset);
     if (nNumArgsIgnored > 0) 
 	{
 		std::cout << nNumArgsIgnored << " extra argument" << (nNumArgsIgnored == 1 ? "" : "s") << " ignored.  FYI." << std::endl;
     }
 
-    if (use_http == 1 && reading_from_file == 0) 
+    if (params.use_http == 1 && params.reading_from_file == 0)
 	{   //added reading from file because if we are doing multiple http this message is just spam.
-        serverptr = strchr(pcHost.data(), ':');
-        if (serverptr != NULL) 
+		params.serverptr = strchr(params.pcHost.data(), ':');
+        if (params.serverptr != NULL)
 		{
-            ++serverptr;
-            ++serverptr;
-            ++serverptr;
+            ++params.serverptr;
+            ++params.serverptr;
+            ++params.serverptr;
         } 
 		else 
 		{
-            serverptr = pcHost.data();
+			params.serverptr = params.pcHost.data();
         }
 
-        docptr = strchr(serverptr, '/');
-        if (docptr != NULL) 
+		params.docptr = strchr(params.serverptr, '/');
+        if (params.docptr != NULL)
 		{
-            *docptr = '\0';
-            ++docptr;
+            *params.docptr = '\0';
+            ++params.docptr;
 
-			strcpy_s(server, sizeof(server), static_cast<const char*>(serverptr));
-			strcpy_s(document, sizeof(document), static_cast<const char*>(docptr));
+			strcpy_s(params.server, sizeof(params.server), static_cast<const char*>(params.serverptr));
+			strcpy_s(params.document, sizeof(params.document), static_cast<const char*>(params.docptr));
         } 
 		else 
 		{
-			strcpy_s(server, sizeof(server), static_cast<const char*>(serverptr));
-            document[0] = '\0';
+			strcpy_s(params.server, sizeof(params.server), static_cast<const char*>(params.serverptr));
+			params.document[0] = '\0';
         }
 
-		out.pf("\n** Requesting %s from %s:\n", document, server);
+		out.pf("\n** Requesting %s from %s:\n", params.document, params.server);
 		out.p("(for various reasons, kbit/s is an approximation)\n");
     }
 
@@ -593,18 +534,24 @@ int main(int argc, char* argv[])
 
 	out.p("\n");
 
-	if (!reading_from_file) 
+	if (!params.reading_from_file)
 	{
-		retval = DoWinsock_Single(pcHost.data(), nPort, times_to_ping, ping_interval, include_timestamp, beep_mode, ping_timeout, relookup_interval, auto_exit_on_success, force_send_byte, include_url, use_http, docptr, http_cmd, include_jitter, jitter_sample_size, logfile, use_logfile, ipv, proxy_server, proxy_port, using_credentials, proxy_credentials, only_changes, no_statistics, giveup_count, out, use_source_address, src_address.data(), blocking, always_print_domain, use_color);
+		retval = DoWinsock_Single(
+			params,
+			out
+		);
 	}
 	else 
 	{
-		if (file_loop_count_was_specific) 
+		if (params.file_loop_count_was_specific)
 		{
-			file_times_to_loop = times_to_ping;
+			params.file_times_to_loop = params.times_to_ping;
 		}
-		times_to_ping = 1;
-		retval = DoWinsock_Multi(pcHost.data(), nPort, times_to_ping, ping_interval, include_timestamp, beep_mode, ping_timeout, relookup_interval, auto_exit_on_success, force_send_byte, include_url, use_http, docptr, http_cmd, include_jitter, jitter_sample_size, logfile, use_logfile, ipv, proxy_server, proxy_port, using_credentials, proxy_credentials, only_changes, no_statistics, giveup_count, file_times_to_loop, urlfile, out, use_source_address, src_address.data(), blocking, always_print_domain, use_color);
+		params.times_to_ping = 1;
+		retval = DoWinsock_Multi(
+			params,
+			out
+		);
 	}
 
     // Shut Winsock back down and take off.

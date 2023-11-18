@@ -42,7 +42,6 @@ This application includes public domain code from the Winsock Programmer's FAQ:
 #include <fstream>
 #include <string>
 #include <sstream>
-
 #include "tee.h"
 #include "ws-util.h"
 #include "tcping.h"
@@ -56,14 +55,11 @@ This application includes public domain code from the Winsock Programmer's FAQ:
 
 using namespace std;
 
-
 // Prototypes
-
 SOCKET EstablishConnection(ADDRINFO *address, int ping_timeout, int force_send_byte, ADDRINFO *src_address, int &errcode, bool blocking);
 SOCKET HTTP_EstablishConnection(ADDRINFO *address, ADDRINFO *src_address);
 
 void formatIP(std::string &abuffer, ADDRINFO *address);
-
 
 LARGE_INTEGER cpu_frequency;
 LARGE_INTEGER response_timer1;
@@ -76,40 +72,48 @@ int CTRL_C_ABORT;
 
 const int BufferSize = 1024;
 
-
-bool SendHttp(SOCKET sd, char* server, char* document, int http_cmd, int using_proxy, int using_credentials, char* hashed_credentials) {
+bool SendHttp(SOCKET sd, char* server, char* document, int http_cmd, int using_proxy, int using_credentials, char* hashed_credentials) 
+{
     char message[1024];
     char cmd[5];
 
-    switch (http_cmd) {
-    case HTTP_GET:
-		strcpy_s(cmd, sizeof(cmd), "GET");
-        break;
-    case HTTP_HEAD:
-		strcpy_s(cmd, sizeof(cmd), "HEAD");
-        break;
-    case HTTP_POST:
-		strcpy_s(cmd, sizeof(cmd), "POST");
-        break;
+    switch (http_cmd) 
+	{
+		case HTTP_GET:
+			strcpy_s(cmd, sizeof(cmd), "GET");
+			break;
+		case HTTP_HEAD:
+			strcpy_s(cmd, sizeof(cmd), "HEAD");
+			break;
+		case HTTP_POST:
+			strcpy_s(cmd, sizeof(cmd), "POST");
+			break;
     }
 
-    if (document == NULL) {
+    if (document == NULL) 
+	{
         document = (char*)"/";
     }
 
-	if (using_credentials == 0) {
-		if (using_proxy == 0) {
+	if (using_credentials == 0) 
+	{
+		if (using_proxy == 0) 
+		{
 			sprintf_s(message, sizeof(message), "%s /%s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nUser-Agent: tcping.exe (www.elifulkerson.com)\r\n\r\n", cmd, document, server);
 		}
-		else {
+		else 
+		{
 			sprintf_s(message, sizeof(message), "%s http://%s/%s HTTP/1.1\r\nConnection: close\r\nUser-Agent: tcping.exe (www.elifulkerson.com)\r\n\r\n", cmd, server, document);
 		}
 	}
-	else {
-		if (using_proxy == 0) {
+	else 
+	{
+		if (using_proxy == 0) 
+		{
 			sprintf_s(message, sizeof(message), "%s /%s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nUser-Agent: tcping.exe (www.elifulkerson.com)\r\nProxy-Authorization: Basic %s\r\n\r\n", cmd, document, server, hashed_credentials);
 		}
-		else {
+		else 
+		{
 			sprintf_s(message, sizeof(message), "%s http://%s/%s HTTP/1.1\r\nConnection: close\r\nUser-Agent: tcping.exe (www.elifulkerson.com)\r\nProxy-Authorization: Basic %s\r\n\r\n", cmd, server, document, hashed_credentials);
 		}
 	}
@@ -117,26 +121,30 @@ bool SendHttp(SOCKET sd, char* server, char* document, int http_cmd, int using_p
     const int messageLen = (int)strlen(message);
 	
     // Send the string to the server
-    if (send(sd, message, messageLen, 0) != SOCKET_ERROR) {
+    if (send(sd, message, messageLen, 0) != SOCKET_ERROR) 
+	{
         return true;
-    } else {
+    } 
+	else 
+	{
         return false;
     }
 }
-
 
 //// ReadReply /////////////////////////////////////////////////////////
 // Read the reply packet and check it for sanity.  Returns -1 on
 // error, 0 on connection closed, > 0 on success.
 
-int ReadReply(SOCKET sd, int &bytes_received, int &http_status) {
+int ReadReply(SOCKET sd, int &bytes_received, int &http_status) 
+{
     // Read reply from server
     char acReadBuffer[BufferSize];
     char acTrashBuffer[BufferSize];
 
     int nTotalBytes = 0;
     int nNewBytes = 0;
-    while (1) {
+    while (1) 
+	{
 
         if (nTotalBytes < BufferSize) {
             nNewBytes = recv(sd, acReadBuffer + nTotalBytes, BufferSize - nTotalBytes, 0);
@@ -144,9 +152,12 @@ int ReadReply(SOCKET sd, int &bytes_received, int &http_status) {
             nNewBytes = recv(sd, acTrashBuffer, BufferSize, 0);
         }
 
-        if (nNewBytes == SOCKET_ERROR) {
+        if (nNewBytes == SOCKET_ERROR) 
+		{
             return -1;
-        } else if (nNewBytes == 0) {
+        } 
+		else if (nNewBytes == 0) 
+		{
             break;
         }
 
@@ -171,8 +182,10 @@ int ReadReply(SOCKET sd, int &bytes_received, int &http_status) {
     return 0;
 }
 
-void controlc() {
-    if (CTRL_C_ABORT == 1) {
+void controlc() 
+{
+    if (CTRL_C_ABORT == 1) 
+	{
         cout.flush();
         cout << "Wow, you really mean it.  I'm sorry... I'll stop now. :(" << endl;
         exit(1);
@@ -181,55 +194,62 @@ void controlc() {
     CTRL_C_ABORT = 1;
 }
 
-void COLOR_RESET(int use_color) {
-	if (use_color == 1) {
+void COLOR_RESET(int use_color) 
+{
+	if (use_color == 1) 
+	{
 		printf("%c[%dm", 0x1B, 0);
 	}
 
-	if (use_color == 2) {
+	if (use_color == 2) 
+	{
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleTextAttribute(hConsole, 7);
 	}
 }
 
-void COLOR_RED(int use_color) {
-	if (use_color == 1) {
+void COLOR_RED(int use_color) 
+{
+	if (use_color == 1) 
+	{
 		printf("%c[%dm", 0x1B, 31);
 	}
 
-	if (use_color == 2) {
+	if (use_color == 2) 
+	{
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleTextAttribute(hConsole, 12);
 	}
 }
 
-
-int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, int include_timestamp, int beep_mode, int ping_timeout, int relookup_interval, int auto_exit_on_success, int force_send_byte, int include_url, int use_http, char* docptr, int http_cmd, int include_jitter, int jitter_sample_size, char* logfile, int use_logfile, int ipv, char* proxy_server, int proxy_port, int using_credentials, char* proxy_credentials, int only_changes, int no_statistics, int giveup_count, tee &out, int use_source_address, char *src_address, bool blocking, int always_print_domain, int use_color) {
-
-	COLOR_RESET(use_color);
+int DoWinsock(PingParams& params, tee &out) 
+{
+	COLOR_RESET(params.use_color);
 	
 	char web_server[2048];
 	int using_proxy = 0;
 	// if we are using a http proxy server, the pcHost needs to be the server address 
-	if (proxy_server[0] == 0) {
-		sprintf_s(web_server, sizeof(web_server), "%s", pcHost);
+	if (params.proxy_server[0] == 0) 
+	{
+		sprintf_s(web_server, sizeof(web_server), "%s", params.pcHost);
 		//web_server[0] = 0;
-	} else {
-		
-		sprintf_s(web_server, sizeof(web_server), "%s", pcHost);
+	} 
+	else 
+	{
+		sprintf_s(web_server, sizeof(web_server), "%s", params.pcHost);
 		//@@ Fix this later.  sprintf_s wasn't happy, so we went back and disabled the warnings just for this one
-		sprintf(pcHost, "%s", proxy_server);
-		nPort = proxy_port;
+		sprintf(params.pcHost.data(), "%s", params.proxy_server);
+		params.nPort = params.proxy_port;
 		using_proxy = 1;
 	}
 
 	char hashed_credentials[2048];
-	if (using_credentials == 1) {
-		const std::string s(proxy_credentials);
+	if (params.using_credentials == 1) 
+	{
+		const std::string s(params.proxy_credentials);
 		std::string encoded = base64_encode(reinterpret_cast<const unsigned char*>(s.c_str()), s.length());
 		sprintf(hashed_credentials, "%s", encoded.c_str());
 	}
-
 
     SetConsoleCtrlHandler((PHANDLER_ROUTINE)&controlc, TRUE);
     CTRL_C_ABORT = 0;
@@ -270,8 +290,8 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
     int have_valid_target = 1;
 
     // jitter rolling average
-    vector<double> jitterbuffer(jitter_sample_size);
-    vector<double> http_jitterbuffer(jitter_sample_size);
+    vector<double> jitterbuffer(params.jitter_sample_size);
+    vector<double> http_jitterbuffer(params.jitter_sample_size);
 
     int jitterpos = 0;
     int success_flag = 0;   // For jitter rolling average we have to remember if we were successful *this* cycle, not just accumulating things
@@ -288,9 +308,6 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
 	double lowest_abs_http_jitter = 50000;
 	double max_abs_http_jitter = 0;
 
-
-
-
 	bool last_cycle_success = false;
 	int number_same_cycles = 0;
 
@@ -299,48 +316,50 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
 	int r;
 	int found;
 
-	sprintf_s(p, sizeof(p), "%d", nPort);
+	sprintf_s(p, sizeof(p), "%d", params.nPort);
     memset(&hint, 0, sizeof (hint));
     hint.ai_family = PF_UNSPEC;
     hint.ai_socktype = SOCK_STREAM;
 
-
-
-	
-	
-	
 	// Find the server's address	
-	r = getaddrinfo(pcHost, p, &hint, &AddrInfo);
+	r = getaddrinfo(params.pcHost.data(), p, &hint, &AddrInfo);
     
-	if (r != 0 ) {
-		
-		if (relookup_interval == -1) {
-			COLOR_RED(use_color);
-			out.pf("DNS: Could not find host - %s, aborting\n", pcHost);
-			COLOR_RESET(use_color);
+	if (r != 0) 
+	{
+		if (params.relookup_interval == -1) 
+		{
+			COLOR_RED(params.use_color);
+			out.pf("DNS: Could not find host - %s, aborting\n", params.pcHost);
+			COLOR_RESET(params.use_color);
 			return 3;
 		}
-		else {
+		else 
+		{
 			have_valid_target = 0;
 		}
 	}
 	found = 0;
-	for (AI = AddrInfo; AI != NULL; AI = AI->ai_next) {
-		if ((AI->ai_family == AF_UNSPEC && ipv == 0) ||
-			(AI->ai_family == AF_INET && ipv != 6) ||
-			(AI->ai_family == AF_INET6 && ipv != 4)) {
+	for (AI = AddrInfo; AI != NULL; AI = AI->ai_next) 
+	{
+		if ((AI->ai_family == AF_UNSPEC && params.ipv == 0) ||
+			(AI->ai_family == AF_INET && params.ipv != 6) ||
+			(AI->ai_family == AF_INET6 && params.ipv != 4)) 
+		{
 			found = 1;
 			break;
 		}
 	}
-	if (found == 0) {
-		if (relookup_interval == -1) {
-			COLOR_RED(use_color);
+	if (found == 0) 
+	{
+		if (params.relookup_interval == -1) 
+		{
+			COLOR_RED(params.use_color);
 			out.pf("DNS: No valid host found in AddrInfo for that type\n");
-			COLOR_RESET(use_color);
+			COLOR_RESET(params.use_color);
 			return 3;
 		}
-		else {
+		else 
+		{
 			have_valid_target = 0;
 		}
 	}
@@ -348,13 +367,15 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
 	// source IP
 	ADDRINFO *SRCAI = NULL;
 
-	if (use_source_address != 0) {
-		r = getaddrinfo(src_address, NULL, NULL, &SRCAI);
+	if (params.use_source_address != 0) 
+	{
+		r = getaddrinfo(params.src_address.c_str(), NULL, NULL, &SRCAI);
 		
-		if (r != 0) {
-			COLOR_RED(use_color);
-			out.pf("-S:  You specified '%s' as a source address, couldn't do anything with that, aborting.\n", src_address);
-			COLOR_RESET(use_color);
+		if (r != 0) 
+		{
+			COLOR_RED(params.use_color);
+			out.pf("-S:  You specified '%s' as a source address, couldn't do anything with that, aborting.\n", params.src_address);
+			COLOR_RESET(params.use_color);
 			return 4;
 		}
 		
@@ -362,53 +383,57 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
 		
 		r = bind(sd, SRCAI->ai_addr, (int)SRCAI->ai_addrlen);
 
-		if (r == SOCKET_ERROR) {
-			COLOR_RED(use_color);
-			out.pf("Binding local source address '%s' failed with error %u\n", src_address, WSAGetLastError());
-			COLOR_RESET(use_color);
+		if (r == SOCKET_ERROR) 
+		{
+			COLOR_RED(params.use_color);
+			out.pf("Binding local source address '%s' failed with error %u\n", params.src_address, WSAGetLastError());
+			COLOR_RESET(params.use_color);
 			return 5;
 		}
-
-
 	}
 
 	int errorcode_stash = 0;
 
-    while ((loopcounter < times_to_ping || times_to_ping == -1) && CTRL_C_ABORT == 0 ) {
-
+    while ((loopcounter < params.times_to_ping || params.times_to_ping == -1) && CTRL_C_ABORT == 0 ) 
+	{
         success_flag = 0;
 
-        if (((number_of_pings % relookup_interval == 0) && (relookup_interval != -1) && number_of_pings > 0) || have_valid_target == 0) {
+        if (((number_of_pings % params.relookup_interval == 0) && (params.relookup_interval != -1) && number_of_pings > 0) || have_valid_target == 0) 
+		{
 			//freeaddrinfo(AddrInfo);   // freeing from the previous cycle @@ don't know if this works this thing still seems to leak
 			// Find the server's address
 			// Duplicate code here because dealing with resource leaks, getaddrinfo and the
 			// differing IPV4 vs IPV6 structures was just obnoxious.
 			found = 0;
-			r = getaddrinfo(pcHost, p, &hint, &AddrInfo);
+			r = getaddrinfo(params.pcHost.c_str(), p, &hint, &AddrInfo);
 
-			if (r != 0) {
-				out.pf("DNS: Could not find host - %s\n", pcHost);
+			if (r != 0) 
+			{
+				out.pf("DNS: Could not find host - %s\n", params.pcHost);
 				have_valid_target = 0;
 			}
-			for (AI = AddrInfo; AI !=NULL; AI=AI->ai_next) {
-				if ( (AI->ai_family == AF_UNSPEC && ipv == 0) ||
-				     (AI->ai_family == AF_INET && ipv != 6) ||
-				     (AI->ai_family == AF_INET6 && ipv != 4) ) {
-				
+			for (AI = AddrInfo; AI !=NULL; AI=AI->ai_next) 
+			{
+				if ( (AI->ai_family == AF_UNSPEC && params.ipv == 0) ||
+				     (AI->ai_family == AF_INET && params.ipv != 6) ||
+				     (AI->ai_family == AF_INET6 && params.ipv != 4) ) 
+				{
 					have_valid_target = 1;
 					found = 1;
 					std::string abuffer;
 					formatIP(abuffer, AI);
-					out.pf("DNS: %s is %s\n", pcHost, abuffer.c_str());
+					out.pf("DNS: %s is %s\n", params.pcHost, abuffer.c_str());
 					break;
 				}
-				if (found == 0) {
+				if (found == 0) 
+				{
 					out.pf("DNS: No valid host found in AddrInfo for that type\n");
 				}	 
 			}
         }
 
-        if (include_timestamp == 1) {
+        if (params.include_timestamp == 1) 
+		{
 			errno_t err;
             //_strtime( timeStr );
 			_strtime_s(timeStr, sizeof(timeStr));
@@ -422,8 +447,8 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
             out.pf("%s %s ", dateStr, timeStr);
         }
 
-        if (have_valid_target == 1) {
-
+        if (have_valid_target == 1) 
+		{
             SOCKET sd;
 
             // apparently... QueryPerformanceCounter isn't thread safe unless we do this
@@ -434,26 +459,33 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
             QueryPerformanceCounter((LARGE_INTEGER *) &response_timer1);
 
             // Connect to the server
-            if (use_http == 0) {
-                sd = EstablishConnection(AI, ping_timeout, force_send_byte, SRCAI, errorcode_stash, blocking);
-            } else {
+            if (params.use_http == 0) 
+			{
+                sd = EstablishConnection(AI, params.ping_timeout, params.force_send_byte, SRCAI, errorcode_stash, params.blocking);
+            } 
+			else 
+			{
                 sd = HTTP_EstablishConnection(AI, SRCAI);
             }
 
             // grab the timeout as early as possible
             QueryPerformanceCounter((LARGE_INTEGER *) &response_timer2);
 
-            if (sd == INVALID_SOCKET) {
-			
-				if (only_changes == 1) {
+            if (sd == INVALID_SOCKET) 
+			{
+				if (params.only_changes == 1) 
+				{
 					if (last_cycle_success == false) 
 					{
 						// no change, so kill the output
 						out.enable(false);
 						number_same_cycles += 1;
-					} else {
+					} 
+					else 
+					{
 						out.enable(true);
-						if (number_of_pings > 0) {
+						if (number_of_pings > 0) 
+						{
 							out.pf("(%d successful)\n", number_same_cycles);
 						}
 						number_same_cycles = 0;
@@ -463,40 +495,50 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
 				std::string abuffer;
 				formatIP(abuffer, AI);
 				
-				COLOR_RED(use_color);
-				if (always_print_domain == 0) {
-					out.pf("Probing %s:%d/tcp - ", abuffer.c_str(), nPort);
+				COLOR_RED(params.use_color);
+				if (params.always_print_domain == 0) 
+				{
+					out.pf("Probing %s:%d/tcp - ", abuffer.c_str(), params.nPort);
 				}
-				else {
-					out.pf("Probing %s:%d/tcp - ", pcHost, nPort);
+				else 
+				{
+					out.pf("Probing %s:%d/tcp - ", params.pcHost, params.nPort);
 				}
 
 				//if (WSAGetLastError() != 0) {
-				if (errorcode_stash != 0) {
+				if (errorcode_stash != 0) 
+				{
 					out.p( WSAGetLastErrorMessage("",errorcode_stash).c_str());
-					
-				} else {
+				} 
+				else 
+				{
 					out.p( "No response" );
 				}
                 failure_counter++;
 				sequential_failure_counter++;
 
-                if (beep_mode == 4 || beep_mode == 1 || (beep_mode == 3 && beep_flag == 1)) {
+                if (params.beep_mode == 4 || params.beep_mode == 1 || (params.beep_mode == 3 && beep_flag == 1)) 
+				{
                     cout << " " << char(7) << "*" << char(7) << "*";
                 }
                 beep_flag = 0;
-            } else {
-			
-				if (only_changes == 1) {
+            } 
+			else 
+			{
+				if (params.only_changes == 1) 
+				{
 					if (last_cycle_success == true) 
 					{
 						// no change, so kill the output
 						
 						out.enable(false);
 						number_same_cycles += 1;
-					} else {
+					} 
+					else 
+					{
 						out.enable(true);
-						if (number_of_pings > 0) {
+						if (number_of_pings > 0) 
+						{
 							out.pf("(%d unsuccessful)\n", number_same_cycles);
 						}
 
@@ -509,18 +551,23 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
 				std::string abuffer;
 				formatIP(abuffer, AI);
 
-				if (always_print_domain == 0) {	
-					out.pf("Probing %s:%d/tcp - ", abuffer.c_str(), nPort);
+				if (params.always_print_domain == 0) 
+				{
+					out.pf("Probing %s:%d/tcp - ", abuffer.c_str(), params.nPort);
 				}
-				else {
-					out.pf("Probing %s:%d/tcp - ", pcHost, nPort);
+				else 
+				{
+					out.pf("Probing %s:%d/tcp - ", params.pcHost, params.nPort);
 				}
 
-                if (use_http == 0) {
+                if (params.use_http == 0) 
+				{
                     out.p("Port is open");
                     success_counter++;
                     success_flag = 1;
-                } else {
+                } 
+				else 
+				{
                     // consider only incrementing if http response @@
                     out.p("HTTP is open");
                     success_counter++;
@@ -532,21 +579,25 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
                     QueryPerformanceFrequency((LARGE_INTEGER *)&cpu_frequency);
                     QueryPerformanceCounter((LARGE_INTEGER *) &http_timer1);
 
-                    SendHttp(sd, web_server, docptr, http_cmd, using_proxy, using_credentials, hashed_credentials);
+                    SendHttp(sd, web_server, params.docptr, params.http_cmd, using_proxy, params.using_credentials, hashed_credentials);
                     ReadReply(sd, bytes_received, http_status);
                     QueryPerformanceCounter((LARGE_INTEGER *) &http_timer2);
 					closesocket(sd);
                 }
 
-                if (beep_mode == 4 || beep_mode == 2 || (beep_mode == 3 && beep_flag == 0)) {
+                if (params.beep_mode == 4 || params.beep_mode == 2 || (params.beep_mode == 3 && beep_flag == 0)) 
+				{
                     cout << " *" << char(7);
                 }
                 beep_flag = 1;
             }
             // Shut connection down
-            if (ShutdownConnection(sd)) {
+            if (ShutdownConnection(sd)) 
+			{
                 // room here for connection shutdown success check...
-            } else {
+            } 
+			else 
+			{
                 // room here for connection shutdown failure check...
             }
 
@@ -555,12 +606,17 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
 
             out.pf( " - time=%0.3fms ", response_time);
 
-            if (use_http == 1) {
-                if (include_url == 1) {
-                    if (docptr != NULL) {
-                        out.pf( "page:http://%s/%s ",pcHost,docptr);
-                    } else {
-                        out.pf( "page:http://%s ", pcHost);
+            if (params.use_http == 1) 
+			{
+                if (params.include_url == 1) 
+				{
+                    if (params.docptr != NULL) 
+					{
+                        out.pf( "page:http://%s/%s ", params.pcHost, params.docptr);
+                    } 
+					else 
+					{
+                        out.pf( "page:http://%s ", params.pcHost);
                     }
                 }
 
@@ -572,30 +628,34 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
                 out.pf("kbit/s=~%0.3f ",bps);
             }
 
-
             // Calculate the statistics...
             number_of_pings++;
 
-            if (sd != INVALID_SOCKET) {
+            if (sd != INVALID_SOCKET) 
+			{
                 running_total_ms += response_time;
 
-                if (response_time < lowest_ping) {
+                if (response_time < lowest_ping) 
+				{
                     lowest_ping = response_time;
                 }
 
-                if (response_time > max_ping) {
+                if (response_time > max_ping) 
+				{
                     max_ping = response_time;
                 }
 
-                if (use_http == 1) {
-
+                if (params.use_http == 1) 
+				{
                     running_total_ms_http += http_response_time;
 
-                    if (http_response_time < lowest_ping_http) {
+                    if (http_response_time < lowest_ping_http) 
+					{
                         lowest_ping_http = http_response_time;
                     }
 
-                    if (http_response_time > max_ping_http) {
+                    if (http_response_time > max_ping_http) 
+					{
                         max_ping_http = http_response_time;
                     }
                 }
@@ -606,79 +666,90 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
               Otherwise, we calculate it based on the prior [jitter_sample_size] values, non inclusive.
              */
 
-            if (include_jitter == 1 && success_counter > 1) {
-                if (jitter_sample_size == 0) {
+            if (params.include_jitter == 1 && success_counter > 1) 
+			{
+                if (params.jitter_sample_size == 0) 
+				{
                     // we didn't specify a sample size, so no rolling average
-
 					current_jitter = response_time - ((running_total_ms - response_time) / (success_counter - 1));
 
 					//out.pf("jitter=%0.3f ", response_time - ((running_total_ms - response_time) / (success_counter - 1)));
 					out.pf("jitter=%0.3f ", current_jitter);
 
-					if (max_abs_jitter < abs(current_jitter)) {
+					if (max_abs_jitter < abs(current_jitter)) 
+					{
 						max_abs_jitter = abs(current_jitter);
 					}
 
-					if (lowest_abs_jitter > abs(current_jitter)) {
+					if (lowest_abs_jitter > abs(current_jitter)) 
+					{
 						lowest_abs_jitter = abs(current_jitter);
 					}
 
 					running_total_abs_jitter += abs(current_jitter);
 
-                    if (use_http == 1) {
-
+                    if (params.use_http == 1) 
+					{
 						current_http_jitter = http_response_time - ((running_total_ms_http - http_response_time) / (success_counter - 1));
 						//out.pf("rcv_jitter=%0.3f ", http_response_time - ((running_total_ms_http - http_response_time) / (success_counter - 1)));
 						out.pf("rcv_jitter=%0.3f ", current_http_jitter);
 
-						if (max_abs_http_jitter < abs(current_http_jitter)) {
+						if (max_abs_http_jitter < abs(current_http_jitter)) 
+						{
 							max_abs_http_jitter = abs(current_http_jitter);
 						}
 
-						if (lowest_abs_http_jitter > abs(current_http_jitter)) {
+						if (lowest_abs_http_jitter > abs(current_http_jitter)) 
+						{
 							lowest_abs_http_jitter = abs(current_http_jitter);
 						}
 
 						running_total_abs_http_jitter += abs(current_http_jitter);
                     }
-
-                } else {
+                } 
+				else 
+				{
 
                     j = 0;
 
-                    for (int x=0; x< min(jitter_sample_size, success_counter - 1); x++) {
-
+                    for (int x=0; x< min(params.jitter_sample_size, success_counter - 1); x++) 
+					{
                         j = j + jitterbuffer[x];
-
                     }
-					current_jitter = response_time - (j / min(success_counter - 1, jitter_sample_size));
+					current_jitter = response_time - (j / min(success_counter - 1, params.jitter_sample_size));
 					//out.pf("jitter=%0.3f ", response_time - (j / min(success_counter - 1, jitter_sample_size)));
 					out.pf("jitter=%0.3f ", current_jitter);
 
-					if (max_abs_jitter < abs(current_jitter)) {
+					if (max_abs_jitter < abs(current_jitter)) 
+					{
 						max_abs_jitter = abs(current_jitter);
 					}
 
-					if (lowest_abs_jitter > abs(current_jitter)) {
+					if (lowest_abs_jitter > abs(current_jitter)) 
+					{
 						lowest_abs_jitter = abs(current_jitter);
 					}
 
 					running_total_abs_jitter += abs(current_jitter);
 
-                    if (use_http == 1) {
+                    if (params.use_http == 1) 
+					{
                         j = 0;
-                        for (int x=0; x< min(jitter_sample_size, success_counter - 1); x++) {
+                        for (int x=0; x< min(params.jitter_sample_size, success_counter - 1); x++) 
+						{
                             j = j + http_jitterbuffer[x];
                         }
-						current_http_jitter = http_response_time - (j / min(success_counter - 1, jitter_sample_size));
+						current_http_jitter = http_response_time - (j / min(success_counter - 1, params.jitter_sample_size));
 						//out.pf("rcv_jitter=%0.3f ", http_response_time - (j / min(success_counter - 1, jitter_sample_size)));
 						out.pf("rcv_jitter=%0.3f ", current_http_jitter);
 
-						if (max_abs_http_jitter < abs(current_http_jitter)) {
+						if (max_abs_http_jitter < abs(current_http_jitter)) 
+						{
 							max_abs_http_jitter = abs(current_http_jitter);
 						}
 
-						if (lowest_abs_http_jitter > abs(current_http_jitter)) {
+						if (lowest_abs_http_jitter > abs(current_http_jitter)) 
+						{
 							lowest_abs_http_jitter = abs(current_http_jitter);
 						}
 
@@ -687,32 +758,35 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
                 }
             }
 
-            if (success_flag == 1 && jitter_sample_size > 0) {
+            if (success_flag == 1 && params.jitter_sample_size > 0) 
+			{
                 jitterbuffer[jitterpos] = response_time;
                 http_jitterbuffer[jitterpos] = http_response_time;
                 jitterpos++;
 
                 // simple rolling average - go back to the beginning of the array once we fill it
-                if (jitterpos == jitter_sample_size) {
+                if (jitterpos == params.jitter_sample_size) 
+				{
                     jitterpos = 0;
                 }
             }
 
-
-			COLOR_RESET(use_color);
+			COLOR_RESET(params.use_color);
             out.p("\n");
 
-
             loopcounter++;
-            if ((loopcounter == times_to_ping) || ((auto_exit_on_success == 1) && (success_counter > 0))) {
+            if ((loopcounter == params.times_to_ping) || ((params.auto_exit_on_success == 1) && (success_counter > 0))) 
+			{
                 break;
             }
 
-			if (sequential_failure_counter >= giveup_count && giveup_count != 0) {
+			if (sequential_failure_counter >= params.giveup_count && params.giveup_count != 0) 
+			{
 				break;
 			}
 
-        } else {
+        } else 
+		{
             // no valid target
             response_time = 0;
             deferred_counter++;
@@ -720,9 +794,11 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
         }
 
         int zzz = 0;
-        double wakeup = (ping_interval * 1000) - response_time;
-        if (wakeup > 0 ) {
-            while (zzz < wakeup && CTRL_C_ABORT ==0) {
+        double wakeup = (params.ping_interval * 1000) - response_time;
+        if (wakeup > 0 ) 
+		{
+            while (zzz < wakeup && CTRL_C_ABORT ==0) 
+			{
                 Sleep(10);
                 zzz += 10;
             }
@@ -731,18 +807,20 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
 
 	out.enable(true);
 
-	if (!no_statistics) {
-
+	if (!params.no_statistics) 
+	{
 		std::string abuffer;
-		if (have_valid_target == 1) {
+		if (have_valid_target == 1) 
+		{
 			formatIP(abuffer, AI);
 		}
-		else {
+		else 
+		{
 			// if we have a bouncing DNS host, we don't have an IP to format correctly, so just spit out what they gave us as an argument...
-			abuffer = pcHost;
+			abuffer = params.pcHost;
 		}
 		
-		out.pf("\nPing statistics for %s:%d\n", abuffer.c_str(), nPort);
+		out.pf("\nPing statistics for %s:%d\n", abuffer.c_str(), params.nPort);
 		out.pf("     %d probes sent. \n", number_of_pings);
 
 		float fail_percent = 100 * (float)failure_counter / ((float)success_counter + (float)failure_counter);
@@ -750,47 +828,56 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
 		// What is this?  Its quadruple %%%% because we are passing through printf *twice*
 		out.pf("     %d successful, %d failed.  (%0.2f%%%% fail)\n", success_counter, failure_counter, fail_percent);
 		
-		if (deferred_counter > 0) {
-
+		if (deferred_counter > 0) 
+		{
 			out.pf("     %d skipped due to failed DNS lookup.\n", deferred_counter);
 		}
-		if (success_counter > 0) {
-			if (failure_counter > 0) {
+		if (success_counter > 0) 
+		{
+			if (failure_counter > 0) 
+			{
 				out.p("Approximate trip times in milli-seconds (successful connections only):\n");
 			}
-			else {
+			else 
+			{
 				out.p("Approximate trip times in milli-seconds:\n");
 			}
 
 			out.pf("     Minimum = %0.3fms, Maximum = %0.3fms, Average = %0.3fms\n", lowest_ping, max_ping, running_total_ms / success_counter);
 
-			if (use_http == 1) {
+			if (params.use_http == 1) 
+			{
 				out.p("Approximate download times in milli-seconds:\n");
 				out.pf("     Minimum = %0.3fms, Maximum = %0.3fms, Average = %0.3fms\n", lowest_ping_http, max_ping_http, running_total_ms_http / success_counter);
 			}
 
-			if (include_jitter && success_counter > 1) {
+			if (params.include_jitter && success_counter > 1) 
+			{
 				out.p("Jitter:\n");
 				out.pf("     Minimum = %0.3fms, Maximum = %0.3fms, Average = %0.3fms\n", lowest_abs_jitter, max_abs_jitter, running_total_abs_jitter / (success_counter - 1));
-				if (use_http) {
+				if (params.use_http) 
+				{
 					out.p("HTTP response jitter:\n");
 					out.pf("     Minimum = %0.3fms, Maximum = %0.3fms, Average = %0.3fms\n", lowest_abs_http_jitter, max_abs_http_jitter, running_total_abs_http_jitter / (success_counter - 1));
 				}
 			}
 		}
-		else {
+		else 
+		{
 			out.p("Was unable to connect, cannot provide trip statistics.\n");
 		}
 	}
 	freeaddrinfo(AddrInfo);
 	
     // report our total, abject failure.
-    if (success_counter == 0) {
+    if (success_counter == 0) 
+	{
         return 1;
     }
 
     // return our intermittent failure
-    if (success_counter > 0 && failure_counter > 0) {
+    if (success_counter > 0 && failure_counter > 0) 
+	{
         return 2;
     }
 
@@ -802,15 +889,13 @@ int DoWinsock(char* pcHost, int nPort, int times_to_ping, double ping_interval, 
 // in network byte order.  Returns newly-connected socket if we succeed,
 // or INVALID_SOCKET if we fail.
 
-SOCKET EstablishConnection(ADDRINFO* address, int ping_timeout, int force_send_byte, ADDRINFO* src_address, int &errorcode, bool blocking) {
-
+SOCKET EstablishConnection(ADDRINFO* address, int ping_timeout, int force_send_byte, ADDRINFO* src_address, int &errorcode, bool blocking) 
+{
     LARGE_INTEGER timer1;
     LARGE_INTEGER timer2;
     LARGE_INTEGER cpu_freq;
 
     double time_so_far;
-
-	
 
     // Create a stream socket
     SOCKET sd = socket(address->ai_family, address->ai_socktype, address->ai_protocol);
@@ -826,7 +911,8 @@ SOCKET EstablishConnection(ADDRINFO* address, int ping_timeout, int force_send_b
 	// ok - the -w option, if enabled, will make this other than -1.  So this leaves us on blocking mode
 	// ... which will just use the default timeout length.  BUT, since its blocking mode, we can get a useful
 	// result from the connect() function, which means we can detect 10061 - connection refused vs a timeout.
-	if (blocking == true) {
+	if (blocking == true) 
+	{
 		//cout << " no timeout @@ " << endl;
 		iMode = 0;
 	}
@@ -834,15 +920,9 @@ SOCKET EstablishConnection(ADDRINFO* address, int ping_timeout, int force_send_b
     ioctlsocket(sd, FIONBIO, &iMode);
 
 	int r;
-	if (src_address != NULL) {
+	if (src_address != NULL) 
+	{
 		r = bind(sd, src_address->ai_addr, (int)src_address->ai_addrlen);
-		// temporary
-		//if (r == SOCKET_ERROR) {
-		//	wprintf(L"bind failed with error %u\n", WSAGetLastError());
-		//}
-		//else {
-		//	wprintf(L"bind returned success\n");
-		//}
 	}
 
     QueryPerformanceFrequency((LARGE_INTEGER *)&cpu_freq);
@@ -851,7 +931,8 @@ SOCKET EstablishConnection(ADDRINFO* address, int ping_timeout, int force_send_b
 	int conResult = -999;
 	conResult = connect(sd, address->ai_addr, (int)address->ai_addrlen);
 	
-	if (conResult == SOCKET_ERROR && iMode == 0) {
+	if (conResult == SOCKET_ERROR && iMode == 0) 
+	{
 		//cout << "result " << conResult << " current error: " << WSAGetLastError() << endl;
 		errorcode = WSAGetLastError();
 		closesocket(sd);
@@ -864,23 +945,27 @@ SOCKET EstablishConnection(ADDRINFO* address, int ping_timeout, int force_send_b
 
     bool done = false;
 
-    while (!done && !CTRL_C_ABORT) {
-
-        if (force_send_byte == 0) {
+    while (!done && !CTRL_C_ABORT) 
+	{
+        if (force_send_byte == 0) 
+		{
             sendstatus = send(sd, NULL, 0, 0);   // should return 0 below
-        } else {
+        } 
+		else 
+		{
             sendstatus = send(sd, sendy, size, 0);   // should return sizeof(sendy) below
         }
 
-
         // one error code is if you send a send of size 0, the other is if you actually send data.
-        if (sendstatus == size && force_send_byte == 1) {
+        if (sendstatus == size && force_send_byte == 1) 
+		{
 			closesocket(sd);
 			errorcode = WSAGetLastError();
             return sd;
         }
 
-        if (sendstatus == 0 && force_send_byte == 0) {
+        if (sendstatus == 0 && force_send_byte == 0) 
+		{
 			closesocket(sd);
 			errorcode = WSAGetLastError();
             return sd;
@@ -890,15 +975,18 @@ SOCKET EstablishConnection(ADDRINFO* address, int ping_timeout, int force_send_b
 
         time_so_far = ( (double) ( (timer2.QuadPart - timer1.QuadPart) * (double) 1000.0 / (double) cpu_freq.QuadPart) );
 
-        if (time_so_far >= ping_timeout) {
+        if (time_so_far >= ping_timeout) 
+		{
             done = true;
-        } else {
-			if (time_so_far < 200) {  // the idea here is to not grind the processor too hard if the precision gained isn't going to be useful.
-				Sleep(0);
-			} else {
-				Sleep(1);
-			}
-        }
+        } 
+		else if (time_so_far < 200) 
+		{  // the idea here is to not grind the processor too hard if the precision gained isn't going to be useful.
+			Sleep(0);
+		} 
+		else 
+		{
+			Sleep(1);
+		}
     }
 	
 	closesocket(sd);
@@ -906,8 +994,8 @@ SOCKET EstablishConnection(ADDRINFO* address, int ping_timeout, int force_send_b
     return INVALID_SOCKET;
 }
 
-SOCKET HTTP_EstablishConnection(ADDRINFO* address, ADDRINFO* src_address) {
-
+SOCKET HTTP_EstablishConnection(ADDRINFO* address, ADDRINFO* src_address) 
+{
     // Create a stream socket
 
 	SOCKET sd = socket(address->ai_family, address->ai_socktype, address->ai_protocol);
@@ -920,7 +1008,8 @@ SOCKET HTTP_EstablishConnection(ADDRINFO* address, ADDRINFO* src_address) {
     */
 
 	int r;
-	if (src_address != NULL) {
+	if (src_address != NULL) 
+	{
 		r = bind(sd, src_address->ai_addr, (int)src_address->ai_addrlen);
 		// temporary
 		//if (r == SOCKET_ERROR) {
@@ -931,9 +1020,10 @@ SOCKET HTTP_EstablishConnection(ADDRINFO* address, ADDRINFO* src_address) {
 		//}
 	}
 
-    if (sd != INVALID_SOCKET) {
-
-        if (connect(sd, address->ai_addr, (int)address->ai_addrlen) == SOCKET_ERROR) {
+    if (sd != INVALID_SOCKET) 
+	{
+        if (connect(sd, address->ai_addr, (int)address->ai_addrlen) == SOCKET_ERROR) 
+		{
             sd = INVALID_SOCKET;
         }
     }
@@ -942,50 +1032,46 @@ SOCKET HTTP_EstablishConnection(ADDRINFO* address, ADDRINFO* src_address) {
 }
 
 
-void formatIP(std::string &abuffer, ADDRINFO* address) {
-
+void formatIP(std::string &abuffer, ADDRINFO* address) 
+{
 	char buffer[46];
 	//char* buffer = new char[46];
 	DWORD bufferlen = 46;
 	DWORD ret;
 
-	switch (address->ai_family) {
-	case AF_INET:
-		struct sockaddr_in  *sockaddr_ipv4;
-		sockaddr_ipv4 = (struct sockaddr_in *) address->ai_addr;
-		//sprintf(buffer, inet_ntoa(sockaddr_ipv4->sin_addr));
-		sprintf_s(buffer, sizeof(buffer), inet_ntoa(sockaddr_ipv4->sin_addr));
-		break;
-	case AF_INET6:
-		// inet_ntop is not available on XP, do not use
-		//inet_ntop(address->ai_family, address->ai_addr, buffer, bufferlen);
+	switch (address->ai_family) 
+	{
+		case AF_INET:
+			struct sockaddr_in  *sockaddr_ipv4;
+			sockaddr_ipv4 = (struct sockaddr_in *) address->ai_addr;
+			//sprintf(buffer, inet_ntoa(sockaddr_ipv4->sin_addr));
+			sprintf_s(buffer, sizeof(buffer), inet_ntoa(sockaddr_ipv4->sin_addr));
+			break;
 
-		ret = getnameinfo(address->ai_addr, (int)address->ai_addrlen, buffer, sizeof (buffer), NULL, 0, NI_NUMERICHOST);
+		case AF_INET6:
+			// inet_ntop is not available on XP, do not use
+			//inet_ntop(address->ai_family, address->ai_addr, buffer, bufferlen);
 
-		break;
+			ret = getnameinfo(address->ai_addr, (int)address->ai_addrlen, buffer, sizeof (buffer), NULL, 0, NI_NUMERICHOST);
+			break;
 	}
 	
 	abuffer = buffer;
-	
 }
 
-
-int DoWinsock_Single(char* pcHost, int nPort, int times_to_ping, double ping_interval, int include_timestamp, int beep_mode, int ping_timeout, int relookup_interval, int auto_exit_on_success, int force_send_byte, int include_url, int use_http, char* docptr, int http_cmd, int include_jitter, int jitter_sample_size, char* logfile, int use_logfile, int ipv, char* proxy_server, int proxy_port, int using_credentials, char* proxy_credentials, int only_changes, int no_statistics, int giveup_count, tee &out, int use_source_address, char *src_address, bool blocking, int always_print_domain, int use_color) {
-	
-	int retval;
-	
-	retval = DoWinsock(pcHost, nPort, times_to_ping, ping_interval, include_timestamp, beep_mode, ping_timeout, relookup_interval, auto_exit_on_success, force_send_byte, include_url, use_http, docptr, http_cmd, include_jitter, jitter_sample_size, logfile, use_logfile, ipv, proxy_server, proxy_port, using_credentials, proxy_credentials, only_changes, no_statistics, giveup_count, out, use_source_address, src_address, blocking, always_print_domain, use_color);
-	return retval;
+int DoWinsock_Single(PingParams& params, tee& out) 
+{
+	return DoWinsock(params, out);
 }
 
-int DoWinsock_Multi(char* pcHost, int nPort, int times_to_ping, double ping_interval, int include_timestamp, int beep_mode, int ping_timeout, int relookup_interval, int auto_exit_on_success, int force_send_byte, int include_url, int use_http, char* docptr, int http_cmd, int include_jitter, int jitter_sample_size, char* logfile, int use_logfile, int ipv, char* proxy_server, int proxy_port, int using_credentials, char* proxy_credentials, int only_changes, int no_statistics, int giveup_count, int file_times_to_loop, char* urlfile, tee &out, int use_source_address, char *src_address, bool blocking, int always_print_domain, int use_color) {
-	
+int DoWinsock_Multi(PingParams& params, tee& out) 
+{	
 	int retval;
-
 
 	int count = 0;
-	while (count < file_times_to_loop || file_times_to_loop == -1) {
-		std::ifstream input(urlfile);
+	while (count < params.file_times_to_loop || params.file_times_to_loop == -1) 
+	{
+		std::ifstream input(params.urlfile);
 		std::string line;
 
 		//while (std::getline(input, line))
@@ -995,15 +1081,19 @@ int DoWinsock_Multi(char* pcHost, int nPort, int times_to_ping, double ping_inte
 			std::string line_ip;
 			int line_port;
 
-			if (ss >> line_ip) {
-				if (ss >> line_port) {
+			if (ss >> line_ip) 
+			{
+				if (ss >> line_port) 
+				{
 					//out.p("success");
 				}
-				else {
-					line_port = nPort;
+				else 
+				{
+					line_port = params.nPort;
 				}
 			}
-			else {
+			else 
+			{
 				break;
 			}
 
@@ -1011,23 +1101,26 @@ int DoWinsock_Multi(char* pcHost, int nPort, int times_to_ping, double ping_inte
 			//strcpy_s(pcHost_f, sizeof(pcHost_f), line.c_str());
 			strcpy_s(pcHost_f, sizeof(pcHost_f), line_ip.c_str());
 			
-			nPort = line_port;
+			params.nPort = line_port;
 
-			retval = DoWinsock(pcHost_f, nPort, times_to_ping, ping_interval, include_timestamp, beep_mode, ping_timeout, relookup_interval, auto_exit_on_success, force_send_byte, include_url, use_http, docptr, http_cmd, include_jitter, jitter_sample_size, logfile, use_logfile, ipv, proxy_server, proxy_port, using_credentials, proxy_credentials, only_changes, no_statistics, giveup_count, out, use_source_address, src_address, blocking, always_print_domain, use_color);
+			retval = DoWinsock(params, out);
 			
 			int zzz = 0;
-			double wakeup = (ping_interval * 1000);
-			if (wakeup > 0) {
-				while (zzz < wakeup && CTRL_C_ABORT == 0) {
+			double wakeup = (params.ping_interval * 1000);
+			if (wakeup > 0) 
+			{
+				while (zzz < wakeup && CTRL_C_ABORT == 0) 
+				{
 					Sleep(10);
 					zzz += 10;
 				}
-				if (CTRL_C_ABORT == 1) {  // need to be explicit here since breaking the ping loop on an individual host doesn't return in multi mode
+				if (CTRL_C_ABORT == 1) 
+				{  // need to be explicit here since breaking the ping loop on an individual host doesn't return in multi mode
 					return retval;
 				}
 			}
 		}
 		count++;
 	}
-		return retval;
+	return retval;
 }
