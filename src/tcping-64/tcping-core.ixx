@@ -1,36 +1,3 @@
-/***********************************************************************
-Tcping.exe -- A tcp probe utility
-Copyright (C) 2005-2017 Eli Fulkerson
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-----------------------------------------------------------------------
-
-Other license terms may be negotiable.  Contact the author if you would
-like a copy that is licensed differently.
-
-Contact information (as well as this program) lives at http://www.elifulkerson.com
-
-----------------------------------------------------------------------
-
-This application includes public domain code from the Winsock Programmer's FAQ:
-  http://www.tangentsoft.net/wskfaq/
-... and a big thank you to the maintainers and contributors therein.
-
-***********************************************************************/
-
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 
