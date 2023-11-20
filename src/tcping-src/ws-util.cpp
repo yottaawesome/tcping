@@ -1,130 +1,9 @@
-/***********************************************************************
-tcping.exe -- A tcp probe utility
-Copyright (C) 2005 Eli Fulkerson
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-----------------------------------------------------------------------
-
-Other license terms may be negotiable.  Contact the author if you would
-like a copy that is licensed differently.
-
-Contact information (as well as this program) lives at http://www.elifulkerson.com
-
-----------------------------------------------------------------------
-
-This application includes public domain code from the Winsock Programmer's FAQ:
-  http://www.tangentsoft.net/wskfaq/
-... and a big thank you to the maintainers and contributers therein.
-
-***********************************************************************/
-
 #include "ws-util.h"
 
 #include <iostream>
 #include <algorithm>
 #include <strstream>
 #include <string>
-
-using namespace std;
-
-#if !defined(_WINSOCK2API_)
-// Winsock 2 header defines this, but Winsock 1.1 header doesn't.  In
-// the interest of not requiring the Winsock 2 SDK which we don't really
-// need, we'll just define this one constant ourselves.
-#define SD_SEND 1
-#endif
-
-
-//// Constants /////////////////////////////////////////////////////////
-
-const int kBufferSize = 1024;
-
-
-//// Statics ///////////////////////////////////////////////////////////
-
-// List of Winsock error constants mapped to an interpretation string.
-// Note that this list must remain sorted by the error constants'
-// values, because we do a binary search on the list when looking up
-// items.
-static struct ErrorEntry {
-    int nID;
-    const char* pcMessage;
-
-    ErrorEntry(int id, const char* pc = 0) :
-        nID(id),
-        pcMessage(pc) {
-    }
-
-    bool operator<(const ErrorEntry& rhs) {
-        return nID < rhs.nID;
-    }
-} gaErrorList[] = {
-    ErrorEntry(0,                  "No error"),
-    ErrorEntry(WSAEINTR,           "Interrupted system call"),
-    ErrorEntry(WSAEBADF,           "Bad file number"),
-    ErrorEntry(WSAEACCES,          "Permission denied"),
-    ErrorEntry(WSAEFAULT,          "Bad address"),
-    ErrorEntry(WSAEINVAL,          "Invalid argument"),
-    ErrorEntry(WSAEMFILE,          "Too many open sockets"),
-    ErrorEntry(WSAEWOULDBLOCK,     "Operation would block"),
-    ErrorEntry(WSAEINPROGRESS,     "Operation now in progress"),
-    ErrorEntry(WSAEALREADY,        "Operation already in progress"),
-    ErrorEntry(WSAENOTSOCK,        "Socket operation on non-socket"),
-    ErrorEntry(WSAEDESTADDRREQ,    "Destination address required"),
-    ErrorEntry(WSAEMSGSIZE,        "Message too long"),
-    ErrorEntry(WSAEPROTOTYPE,      "Protocol wrong type for socket"),
-    ErrorEntry(WSAENOPROTOOPT,     "Bad protocol option"),
-    ErrorEntry(WSAEPROTONOSUPPORT, "Protocol not supported"),
-    ErrorEntry(WSAESOCKTNOSUPPORT, "Socket type not supported"),
-    ErrorEntry(WSAEOPNOTSUPP,      "Operation not supported on socket"),
-    ErrorEntry(WSAEPFNOSUPPORT,    "Protocol family not supported"),
-    ErrorEntry(WSAEAFNOSUPPORT,    "Address family not supported"),
-    ErrorEntry(WSAEADDRINUSE,      "Address already in use"),
-    ErrorEntry(WSAEADDRNOTAVAIL,   "Can't assign requested address"),
-    ErrorEntry(WSAENETDOWN,        "Network is down"),
-    ErrorEntry(WSAENETUNREACH,     "Network is unreachable"),
-    ErrorEntry(WSAENETRESET,       "Net connection reset"),
-    ErrorEntry(WSAECONNABORTED,    "Software caused connection abort"),
-    ErrorEntry(WSAECONNRESET,      "Connection reset by peer"),
-    ErrorEntry(WSAENOBUFS,         "No buffer space available"),
-    ErrorEntry(WSAEISCONN,         "Socket is already connected"),
-    ErrorEntry(WSAENOTCONN,        "Socket is not connected"),
-    ErrorEntry(WSAESHUTDOWN,       "Can't send after socket shutdown"),
-    ErrorEntry(WSAETOOMANYREFS,    "Too many references, can't splice"),
-    ErrorEntry(WSAETIMEDOUT,       "Connection timed out"),
-    ErrorEntry(WSAECONNREFUSED,    "Connection refused"),
-    ErrorEntry(WSAELOOP,           "Too many levels of symbolic links"),
-    ErrorEntry(WSAENAMETOOLONG,    "File name too long"),
-    ErrorEntry(WSAEHOSTDOWN,       "Host is down"),
-    ErrorEntry(WSAEHOSTUNREACH,    "No route to host"),
-    ErrorEntry(WSAENOTEMPTY,       "Directory not empty"),
-    ErrorEntry(WSAEPROCLIM,        "Too many processes"),
-    ErrorEntry(WSAEUSERS,          "Too many users"),
-    ErrorEntry(WSAEDQUOT,          "Disc quota exceeded"),
-    ErrorEntry(WSAESTALE,          "Stale NFS file handle"),
-    ErrorEntry(WSAEREMOTE,         "Too many levels of remote in path"),
-    ErrorEntry(WSASYSNOTREADY,     "Network system is unavailable"),
-    ErrorEntry(WSAVERNOTSUPPORTED, "Winsock version out of range"),
-    ErrorEntry(WSANOTINITIALISED,  "WSAStartup not yet called"),
-    ErrorEntry(WSAEDISCON,         "Graceful shutdown in progress"),
-    ErrorEntry(WSAHOST_NOT_FOUND,  "Host not found"),
-    ErrorEntry(WSANO_DATA,         "No host data of that type was found")
-};
-const int kNumMessages = sizeof(gaErrorList) / sizeof(ErrorEntry);
-
 
 //// WSAGetLastErrorMessage ////////////////////////////////////////////
 // A function similar in spirit to Unix's perror() that tacks a canned
@@ -165,11 +44,14 @@ std::string WSAGetLastErrorMessage(
 // Gracefully shuts the connection sd down.  Returns true if we're
 // successful, false otherwise.
 
-bool ShutdownConnection(SOCKET sd) {
+bool ShutdownConnection(SOCKET sd) 
+{
+    const int kBufferSize = 1024;
     // Disallow any further data sends.  This will tell the other side
     // that we want to go away now.  If we skip this step, we don't
     // shut the connection down nicely.
-    if (shutdown(sd, SD_SEND) == SOCKET_ERROR) {
+    if (shutdown(sd, SD_SEND) == SOCKET_ERROR) 
+    {
         closesocket(sd);
         return false;
     }
@@ -180,25 +62,27 @@ bool ShutdownConnection(SOCKET sd) {
     // Then we'll get a 0 back from recv, signalling that the remote
     // host has closed its side of the connection.
     char acReadBuffer[kBufferSize];
-    while (1) {
+    while (1) 
+    {
         int nNewBytes = recv(sd, acReadBuffer, kBufferSize, 0);
-        if (nNewBytes == SOCKET_ERROR) {
+        if (nNewBytes == SOCKET_ERROR) 
+        {
             closesocket(sd);
             return false;
-        } else if (nNewBytes != 0) {
-            //    cerr << endl << "FYI, received " << nNewBytes <<
-            //            " unexpected bytes during shutdown." << acReadBuffer << endl;
-            cout << " (" << nNewBytes << " bytes read)";
-        } else {
-            // Okay, we're done!
+        } 
+        else if (nNewBytes != 0) 
+        {
+            std::cout << " (" << nNewBytes << " bytes read)";
+        } 
+        else 
+        {
             break;
         }
     }
 
     // Close the socket.
-    if (closesocket(sd) == SOCKET_ERROR) {
+    if (closesocket(sd) == SOCKET_ERROR)
         return false;
-    }
 
     return true;
 }

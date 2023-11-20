@@ -5,8 +5,6 @@
 #if !defined(WS_UTIL_H)
 #define WS_UTIL_H
 
-// Uncomment one.
-//#include <winsock.h>
 #include <winsock2.h>
 #include <string>
 

@@ -231,12 +231,12 @@ int DoWinsock(PingParams& params, tee &out)
 	// if we are using a http proxy server, the pcHost needs to be the server address 
 	if (params.proxy_server[0] == 0) 
 	{
-		sprintf_s(web_server, sizeof(web_server), "%s", params.pcHost);
+		sprintf_s(web_server, sizeof(web_server), "%s", params.pcHost.c_str());
 		//web_server[0] = 0;
 	} 
 	else 
 	{
-		sprintf_s(web_server, sizeof(web_server), "%s", params.pcHost);
+		sprintf_s(web_server, sizeof(web_server), "%s", params.pcHost.c_str());
 		//@@ Fix this later.  sprintf_s wasn't happy, so we went back and disabled the warnings just for this one
 		sprintf(params.pcHost.data(), "%s", params.proxy_server);
 		params.nPort = params.proxy_port;
