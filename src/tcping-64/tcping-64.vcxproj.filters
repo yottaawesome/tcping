@@ -23,5 +23,7 @@
     <ClCompile Include="tcping-base64.ixx" />
     <ClCompile Include="tcping-tee.ixx" />
     <ClCompile Include="tcping-core.ixx" />
+    <ClCompile Include="tcping-pingparams.ixx" />
+    <ClCompile Include="tcping-constants.ixx" />
   </ItemGroup>
 </Project>

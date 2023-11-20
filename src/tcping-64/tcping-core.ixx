@@ -11,88 +11,8 @@ import std.compat;
 import :tee;
 import :wsutil;
 import :base64;
-
-export
-{
-	constexpr int kDefaultServerPort = 80;
-	constexpr int HTTP_GET = 0;
-	constexpr int HTTP_HEAD = 1;
-	constexpr int HTTP_POST = 2;
-
-	struct PingParams
-	{
-		int times_to_ping = 4;
-		int offset = 0;  // because I don't feel like writing a whole command line parsing thing, I just want to accept an optional -t.  // well, that got out of hand quickly didn't it? -Future Eli
-		double ping_interval = 1;
-		int include_timestamp = 0;
-		int beep_mode = 0;  // 0 is off, 1 is down, 2 is up, 3 is on change, 4 is constantly
-		int ping_timeout = 2000;
-		bool blocking = false;
-		int relookup_interval = -1;
-		int auto_exit_on_success = 0;
-		int force_send_byte = 0;
-
-		int include_url = 0;
-		int use_http = 0;
-		int http_cmd = 0;
-
-		int include_jitter = 0;
-		int jitter_sample_size = 0;
-
-		int only_changes = 0;
-
-		// for http mode
-		char* serverptr;
-		char* docptr = NULL;
-		char server[2048];
-		char document[2048];
-
-		// for --tee
-		char logfile[256];
-		int use_logfile = 0;
-		int show_arg_header = 0;
-		bool tee_mode_append = false;
-
-		// preferred IP version
-		int ipv = 0;
-
-		// http proxy server and port
-		int proxy_port = 3128;
-		char proxy_server[2048]{ 0 };
-
-		char proxy_credentials[2048];
-		int using_credentials = 0;
-
-		// Flags for "read from filename" support
-		int no_statistics = 0;  // no_statistics flag kills the statistics finale in the cases where we are reading entries from a file
-		int reading_from_file = 0;  // setting this flag so we can mangle the other settings against it post parse.  For instance, it moves the meaning of -n and -t
-		char urlfile[256];
-		int file_times_to_loop = 1;
-		bool file_loop_count_was_specific = false;   // ugh, since we are taking over the -n and -t options, but we don't want a default of 4 but we *do* want 4 if they specified 4
-
-		int giveup_count = 0;
-		int use_color = 0;
-
-		int use_source_address = 0;
-		std::string src_address = "";
-
-		int nPort = kDefaultServerPort;
-
-		int always_print_domain = 0;
-
-		std::string pcHost;
-	};
-
-	int DoWinsock_Single(
-		PingParams& params,
-		tee& out
-	);
-
-	int DoWinsock_Multi(
-		PingParams& params,
-		tee& out
-	);
-}
+import :pingparams;
+import :constants;
 
 namespace
 {
@@ -111,9 +31,9 @@ namespace
 
 	int CTRL_C_ABORT;
 
-	const int BufferSize = 1024;
+	constexpr int BufferSize = 1024;
 
-#define NUM_PROBES 4
+	constexpr auto NUM_PROBES = 4;
 
 	bool SendHttp(SOCKET sd, char* server, char* document, int http_cmd, int using_proxy, int using_credentials, char* hashed_credentials)
 	{
@@ -122,18 +42,18 @@ namespace
 
 		switch (http_cmd)
 		{
-		case HTTP_GET:
-			strcpy_s(cmd, sizeof(cmd), "GET");
-			break;
-		case HTTP_HEAD:
-			strcpy_s(cmd, sizeof(cmd), "HEAD");
-			break;
-		case HTTP_POST:
-			strcpy_s(cmd, sizeof(cmd), "POST");
-			break;
+			case HTTP_GET:
+				strcpy_s(cmd, sizeof(cmd), "GET");
+				break;
+			case HTTP_HEAD:
+				strcpy_s(cmd, sizeof(cmd), "HEAD");
+				break;
+			case HTTP_POST:
+				strcpy_s(cmd, sizeof(cmd), "POST");
+				break;
 		}
 
-		if (document == NULL)
+		if (document == nullptr)
 		{
 			document = (char*)"/";
 		}
@@ -383,7 +303,7 @@ namespace
 			}
 		}
 		found = 0;
-		for (AI = AddrInfo; AI != NULL; AI = AI->ai_next)
+		for (AI = AddrInfo; AI != nullptr; AI = AI->ai_next)
 		{
 			if ((AI->ai_family == AF_UNSPEC && params.ipv == 0) ||
 				(AI->ai_family == AF_INET && params.ipv != 6) ||
@@ -409,11 +329,11 @@ namespace
 		}
 
 		// source IP
-		ADDRINFO* SRCAI = NULL;
+		ADDRINFO* SRCAI = nullptr;
 
 		if (params.use_source_address != 0)
 		{
-			r = getaddrinfo(params.src_address.c_str(), NULL, NULL, &SRCAI);
+			r = getaddrinfo(params.src_address.c_str(), nullptr, nullptr, &SRCAI);
 
 			if (r != 0)
 			{
@@ -456,7 +376,7 @@ namespace
 					out.pf("DNS: Could not find host - %s\n", params.pcHost);
 					have_valid_target = 0;
 				}
-				for (AI = AddrInfo; AI != NULL; AI = AI->ai_next)
+				for (AI = AddrInfo; AI != nullptr; AI = AI->ai_next)
 				{
 					if ((AI->ai_family == AF_UNSPEC && params.ipv == 0) ||
 						(AI->ai_family == AF_INET && params.ipv != 6) ||
@@ -654,7 +574,7 @@ namespace
 				{
 					if (params.include_url == 1)
 					{
-						if (params.docptr != NULL)
+						if (params.docptr != nullptr)
 						{
 							out.pf("page:http://%s/%s ", params.pcHost, params.docptr);
 						}
@@ -965,7 +885,7 @@ namespace
 		ioctlsocket(sd, FIONBIO, &iMode);
 
 		int r;
-		if (src_address != NULL)
+		if (src_address != nullptr)
 		{
 			r = bind(sd, src_address->ai_addr, (int)src_address->ai_addrlen);
 		}
@@ -994,7 +914,7 @@ namespace
 		{
 			if (force_send_byte == 0)
 			{
-				sendstatus = send(sd, NULL, 0, 0);   // should return 0 below
+				sendstatus = send(sd, nullptr, 0, 0);   // should return 0 below
 			}
 			else
 			{
@@ -1053,7 +973,7 @@ namespace
 		*/
 
 		int r;
-		if (src_address != NULL)
+		if (src_address != nullptr)
 		{
 			r = bind(sd, src_address->ai_addr, (int)src_address->ai_addrlen);
 			// temporary
@@ -1096,75 +1016,78 @@ namespace
 			// inet_ntop is not available on XP, do not use
 			//inet_ntop(address->ai_family, address->ai_addr, buffer, bufferlen);
 
-			ret = getnameinfo(address->ai_addr, (int)address->ai_addrlen, buffer, sizeof(buffer), NULL, 0, NI_NUMERICHOST);
+			ret = getnameinfo(address->ai_addr, (int)address->ai_addrlen, buffer, sizeof(buffer), nullptr, 0, NI_NUMERICHOST);
 			break;
 		}
 		abuffer = buffer;
 	}
 }
 
-int DoWinsock_Single(PingParams& params, tee& out)
+export
 {
-	return DoWinsock(params, out);
-}
-
-int DoWinsock_Multi(PingParams& params, tee& out)
-{
-	int retval;
-
-	int count = 0;
-	while (count < params.file_times_to_loop || params.file_times_to_loop == -1)
+	int DoWinsock_Single(PingParams& params, tee& out)
 	{
-		std::ifstream input(params.urlfile);
-		std::string line;
+		return DoWinsock(params, out);
+	}
 
-		//while (std::getline(input, line))
-		while (std::getline(input, line))
+	int DoWinsock_Multi(PingParams& params, tee& out)
+	{
+		int retval;
+
+		int count = 0;
+		while (count < params.file_times_to_loop || params.file_times_to_loop == -1)
 		{
-			std::stringstream ss(line);
-			std::string line_ip;
-			int line_port;
+			std::ifstream input(params.urlfile);
+			std::string line;
 
-			if (ss >> line_ip)
+			//while (std::getline(input, line))
+			while (std::getline(input, line))
 			{
-				if (ss >> line_port)
+				std::stringstream ss(line);
+				std::string line_ip;
+				int line_port;
+
+				if (ss >> line_ip)
 				{
-					//out.p("success");
+					if (ss >> line_port)
+					{
+						//out.p("success");
+					}
+					else
+					{
+						line_port = params.nPort;
+					}
 				}
 				else
 				{
-					line_port = params.nPort;
+					break;
 				}
-			}
-			else
-			{
-				break;
-			}
 
-			char pcHost_f[255];
-			//strcpy_s(pcHost_f, sizeof(pcHost_f), line.c_str());
-			strcpy_s(pcHost_f, sizeof(pcHost_f), line_ip.c_str());
+				char pcHost_f[255];
+				//strcpy_s(pcHost_f, sizeof(pcHost_f), line.c_str());
+				strcpy_s(pcHost_f, sizeof(pcHost_f), line_ip.c_str());
 
-			params.nPort = line_port;
+				params.nPort = line_port;
 
-			retval = DoWinsock(params, out);
+				retval = DoWinsock(params, out);
 
-			int zzz = 0;
-			double wakeup = (params.ping_interval * 1000);
-			if (wakeup > 0)
-			{
-				while (zzz < wakeup && CTRL_C_ABORT == 0)
+				int zzz = 0;
+				double wakeup = (params.ping_interval * 1000);
+				if (wakeup > 0)
 				{
-					Sleep(10);
-					zzz += 10;
-				}
-				if (CTRL_C_ABORT == 1)
-				{  // need to be explicit here since breaking the ping loop on an individual host doesn't return in multi mode
-					return retval;
+					while (zzz < wakeup && CTRL_C_ABORT == 0)
+					{
+						Sleep(10);
+						zzz += 10;
+					}
+					if (CTRL_C_ABORT == 1)
+					{  // need to be explicit here since breaking the ping loop on an individual host doesn't return in multi mode
+						return retval;
+					}
 				}
 			}
+			count++;
 		}
-		count++;
+		return retval;
 	}
-	return retval;
 }
