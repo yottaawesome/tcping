@@ -28,79 +28,19 @@ private:
 };
 
 
-tee::tee()
-{
-	flag = 0;
-	enable_output = true;
-}
-
-tee::~tee()
-{
-	this->Close();
-}
-
-void tee::OpenAppend(char*filename)
-{
-	if (flag != 0) {
-		outfile.close();
-	}
-	outfile.open(filename, std::ofstream::out | std::ofstream::app);
-	flag = 1;
-}
 
 
-void tee::Open(char*filename)
-{
-	if (flag != 0) {
-		outfile.close();
-	}
-	outfile.open(filename);
-	flag = 1;
-}
 
-void tee::Close()
-{
-	if (flag != 0) {
-		outfile.close();
-	}
-	flag = 0;
-}
 
-void tee::p(const char* text)
-{
-	if (enable_output == false) {
-		return;
-	}
 
-	printf(text);
-	if (flag == 1) {
-		outfile << text;
-		outfile.flush();
-	}
-	fflush(stdout);
-}
+
+
+
 
 void tee::pf(const char* format, ...)
-{
-	if (enable_output == false) {
-		return;
-	}
-
-	char buffer[256];
-	va_list args;
-	va_start(args, format);
-	//vsprintf(buffer, format, args);
-	vsprintf_s(buffer, 256, format, args);
 
 
-	va_end(args);
-
-	this->p(buffer);
-}
-
-void tee::enable(bool onoff){
-	enable_output = onoff;
-}
+void tee::enable(bool onoff)
 
 
 

@@ -1,4 +1,5 @@
 #include <string>
+import tcping;
 
 const int kDefaultServerPort = 80;
 const int HTTP_GET = 0;
