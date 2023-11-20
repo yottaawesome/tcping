@@ -374,7 +374,7 @@ int main(int argc, char* argv[])
 
 	// open our logfile, if applicable
 	tee out;
-	if (params.use_logfile == 1 && params.logfile != NULL)
+	if (params.use_logfile == 1 && params.logfile != nullptr)
 	{
 		if (params.tee_mode_append == true)
 		{
@@ -456,7 +456,7 @@ int main(int argc, char* argv[])
     if (params.use_http == 1 && params.reading_from_file == 0)
 	{   //added reading from file because if we are doing multiple http this message is just spam.
 		params.serverptr = strchr(params.pcHost.data(), ':');
-        if (params.serverptr != NULL)
+        if (params.serverptr != nullptr)
 		{
             ++params.serverptr;
             ++params.serverptr;
@@ -468,7 +468,7 @@ int main(int argc, char* argv[])
         }
 
 		params.docptr = strchr(params.serverptr, '/');
-        if (params.docptr != NULL)
+        if (params.docptr != nullptr)
 		{
             *params.docptr = '\0';
             ++params.docptr;
