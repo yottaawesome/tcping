@@ -41,8 +41,6 @@ const char* TCPING_DATE = "Dec 30 2017";
 #include <iostream>
 #include <time.h>
 
-#include "tcping.h"
-
 import tcping;
 
 void usage(int argc, char* argv[]) 
