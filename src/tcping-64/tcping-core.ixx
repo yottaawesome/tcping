@@ -1,20 +1,13 @@
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
-
 module;
 
-#include <string>
 #include <winsock2.h>
-#include <iostream>
-#include <string.h>
 #include <time.h>
-#include <vector>
-#include <fstream>
-#include <string>
-#include <sstream>
+#include <stdio.h>
 #include <ws2tcpip.h>
 
 export module tcping:core;
+import std;
+import std.compat;
 import :tee;
 import :wsutil;
 import :base64;
@@ -101,8 +94,6 @@ export
 	);
 }
 
-using namespace std;
-
 // Prototypes
 SOCKET EstablishConnection(ADDRINFO* address, int ping_timeout, int force_send_byte, ADDRINFO* src_address, int& errcode, bool blocking);
 SOCKET HTTP_EstablishConnection(ADDRINFO* address, ADDRINFO* src_address);
@@ -139,7 +130,7 @@ bool SendHttp(SOCKET sd, char* server, char* document, int http_cmd, int using_p
 		strcpy_s(cmd, sizeof(cmd), "POST");
 		break;
 	}
-
+	
 	if (document == NULL)
 	{
 		document = (char*)"/";
@@ -237,11 +228,11 @@ void controlc()
 {
 	if (CTRL_C_ABORT == 1)
 	{
-		cout.flush();
-		cout << "Wow, you really mean it.  I'm sorry... I'll stop now. :(" << endl;
+		std::cout.flush();
+		std::cout << "Wow, you really mean it.  I'm sorry... I'll stop now. :(" << std::endl;
 		exit(1);
 	}
-	cout << "Control-C" << endl;
+	std::cout << "Control-C" << std::endl;
 	CTRL_C_ABORT = 1;
 }
 
@@ -341,8 +332,8 @@ int DoWinsock(PingParams& params, tee& out)
 	int have_valid_target = 1;
 
 	// jitter rolling average
-	vector<double> jitterbuffer(params.jitter_sample_size);
-	vector<double> http_jitterbuffer(params.jitter_sample_size);
+	std::vector<double> jitterbuffer(params.jitter_sample_size);
+	std::vector<double> http_jitterbuffer(params.jitter_sample_size);
 
 	int jitterpos = 0;
 	int success_flag = 0;   // For jitter rolling average we have to remember if we were successful *this* cycle, not just accumulating things
@@ -489,7 +480,7 @@ int DoWinsock(PingParams& params, tee& out)
 			//_strtime( timeStr );
 			_strtime_s(timeStr, sizeof(timeStr));
 
-			time(&rawtime);
+			std::time(&rawtime);
 
 			//timeinfo = localtime ( &rawtime );
 			err = localtime_s(&timeinfo, &rawtime);
@@ -570,7 +561,7 @@ int DoWinsock(PingParams& params, tee& out)
 
 				if (params.beep_mode == 4 || params.beep_mode == 1 || (params.beep_mode == 3 && beep_flag == 1))
 				{
-					cout << " " << char(7) << "*" << char(7) << "*";
+					std::cout << " " << char(7) << "*" << char(7) << "*";
 				}
 				beep_flag = 0;
 			}
@@ -638,7 +629,7 @@ int DoWinsock(PingParams& params, tee& out)
 
 				if (params.beep_mode == 4 || params.beep_mode == 2 || (params.beep_mode == 3 && beep_flag == 0))
 				{
-					cout << " *" << char(7);
+					std::cout << " *" << char(7);
 				}
 				beep_flag = 1;
 			}

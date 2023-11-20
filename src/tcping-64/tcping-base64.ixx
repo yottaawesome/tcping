@@ -27,10 +27,9 @@ René Nyffenegger rene.nyffenegger@adp-gmbh.ch
 
 module;
 
-#include <iostream>
-#include <string>
-
 export module tcping:base64;
+import std;
+import std.compat;
 
 namespace
 {

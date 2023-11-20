@@ -5,10 +5,12 @@ const char* TCPING_DATE = "Dec 30 2017";
 
 #include <winsock2.h>
 #include <stdlib.h>
-#include <iostream>
+#include <stdio.h>
 #include <time.h>
 
 import tcping;
+import std;
+import std.compat;
 
 void usage(int argc, char* argv[]) 
 {
@@ -406,7 +408,7 @@ int main(int argc, char* argv[])
 
 		_strtime_s(timeStr, sizeof(timeStr));
 
-		time(&rawtime);
+		std::time(&rawtime);
 
 		err = localtime_s(&timeinfo, &rawtime);
 		strftime(dateStr, 11, "%Y:%m:%d", &timeinfo);

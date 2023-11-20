@@ -1,10 +1,11 @@
 module;
 
-#include <fstream>
 #include <stdio.h>
 #include <stdarg.h>
 
 export module tcping:tee;
+import std;
+import std.compat;
 
 /*
 Don't make fun of me, Unix guys.  I know about `which tee`.  Tee isn't always available on windows systems, however.

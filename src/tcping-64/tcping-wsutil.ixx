@@ -1,26 +1,13 @@
 module;
 
 #include <winsock2.h>
-#include <iostream>
-#include <algorithm>
-#include <strstream>
-#include <string>
 
 export module tcping:wsutil;
+import std;
+import std.compat;
 
 export 
 {
-    //// WSAGetLastErrorMessage ////////////////////////////////////////////
-    // A function similar in spirit to Unix's perror() that tacks a canned
-    // interpretation of the value of WSAGetLastError() onto the end of a
-    // passed string, separated by a ": ".  Generally, you should implement
-    // smarter error handling than this, but for default cases and simple
-    // programs, this function is sufficient.
-    //
-    // This function returns a pointer to an internal static buffer, so you
-    // must copy the data from this function before you call it again.  It
-    // follows that this function is also not thread-safe.
-
     std::string WSAGetLastErrorMessage(
         const std::string& pcMessagePrefix,
         const int nErrorId
