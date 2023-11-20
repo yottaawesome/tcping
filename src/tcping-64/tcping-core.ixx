@@ -354,6 +354,8 @@ namespace
 				COLOR_RESET(params.use_color);
 				return 5;
 			}
+
+			closesocket(sd);
 		}
 
 		int errorcode_stash = 0;
