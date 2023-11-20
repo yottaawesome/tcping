@@ -26,9 +26,6 @@
     <ClCompile Include="tcping-wsutil.ixx" />
     <ClCompile Include="tcping.ixx" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\tcping-src\tcping.txt" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F44464B1-AE07-4697-89F8-117F331984CA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

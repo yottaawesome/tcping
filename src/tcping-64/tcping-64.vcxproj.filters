@@ -24,7 +24,4 @@
     <ClCompile Include="tcping-tee.ixx" />
     <ClCompile Include="tcping-core.ixx" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\tcping-src\tcping.txt" />
-  </ItemGroup>
 </Project>
