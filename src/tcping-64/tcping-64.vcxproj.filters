@@ -21,27 +21,18 @@
     <ClCompile Include="..\tcping-src\tcping.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\tcping-src\ws-util.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tcping-src\base64.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\tcping-src\tee.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tcping.ixx" />
+    <ClCompile Include="tcping-wsutil.ixx" />
+    <ClCompile Include="tcping-base64.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tcping-src\tcping.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\tcping-src\tee.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tcping-src\ws-util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tcping-src\base64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

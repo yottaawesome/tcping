@@ -43,11 +43,11 @@ This application includes public domain code from the Winsock Programmer's FAQ:
 #include <string>
 #include <sstream>
 #include "tee.h"
-#include "ws-util.h"
 #include "tcping.h"
 #include "base64.h"
-
 #include <ws2tcpip.h>
+
+import tcping;
 
 #pragma comment(lib, "Ws2_32.lib")
 
