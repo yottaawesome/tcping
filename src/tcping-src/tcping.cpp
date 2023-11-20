@@ -44,7 +44,6 @@ This application includes public domain code from the Winsock Programmer's FAQ:
 #include <sstream>
 #include "tee.h"
 #include "tcping.h"
-#include "base64.h"
 #include <ws2tcpip.h>
 
 import tcping;
