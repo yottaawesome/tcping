@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\tcping-src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tcping.ixx" />
     <ClCompile Include="tcping-wsutil.ixx" />
     <ClCompile Include="tcping-base64.ixx" />
@@ -25,5 +22,8 @@
     <ClCompile Include="tcping-core.ixx" />
     <ClCompile Include="tcping-pingparams.ixx" />
     <ClCompile Include="tcping-constants.ixx" />
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

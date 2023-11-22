@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\tcping-src\main.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="tcping-base64.ixx" />
     <ClCompile Include="tcping-constants.ixx" />
     <ClCompile Include="tcping-core.ixx" />
